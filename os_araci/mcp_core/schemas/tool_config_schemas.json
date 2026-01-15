@@ -1,0 +1,253 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "MCP Tool Configuration Schema",
+    "description": "External and Remote MCP Tool configuration schema",
+    "type": "object",
+    "definitions": {
+      "externalToolConfig": {
+        "type": "object",
+        "required": ["name", "base_url", "endpoints"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the external tool"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version of the external tool",
+            "default": "1.0.0"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the external tool"
+          },
+          "base_url": {
+            "type": "string",
+            "description": "Base URL of the external API",
+            "format": "uri"
+          },
+          "auth_type": {
+            "type": "string",
+            "description": "Authentication type",
+            "enum": ["none", "bearer", "basic", "apikey"],
+            "default": "none"
+          },
+          "auth": {
+            "type": "object",
+            "description": "Authentication information",
+            "properties": {
+              "token": {
+                "type": "string",
+                "description": "Bearer token for authentication"
+              },
+              "username": {
+                "type": "string",
+                "description": "Username for Basic authentication"
+              },
+              "password": {
+                "type": "string",
+                "description": "Password for Basic authentication"
+              },
+              "api_key": {
+                "type": "string",
+                "description": "API key for API Key authentication"
+              },
+              "header_name": {
+                "type": "string",
+                "description": "Header name for API Key authentication",
+                "default": "X-API-Key"
+              },
+              "refresh_token": {
+                "type": "string",
+                "description": "Refresh token for Bearer authentication"
+              },
+              "refresh_url": {
+                "type": "string",
+                "description": "URL for refreshing tokens",
+                "format": "uri"
+              },
+              "client_id": {
+                "type": "string",
+                "description": "Client ID for OAuth authentication"
+              },
+              "client_secret": {
+                "type": "string",
+                "description": "Client secret for OAuth authentication"
+              },
+              "expiry_time": {
+                "type": "number",
+                "description": "Expiry time for tokens in Unix timestamp format"
+              }
+            }
+          },
+          "endpoints": {
+            "type": "object",
+            "description": "API endpoints",
+            "additionalProperties": {
+              "type": "object",
+              "required": ["method", "path"],
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "description": "HTTP method for the endpoint",
+                  "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+                  "default": "GET"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Endpoint path relative to base_url"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Description of the endpoint"
+                },
+                "parameters": {
+                  "type": "object",
+                  "description": "Parameters for the endpoint",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "description": "Parameter type",
+                        "enum": ["string", "number", "boolean", "object", "array"],
+                        "default": "string"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Parameter description"
+                      },
+                      "required": {
+                        "type": "boolean",
+                        "description": "Is the parameter required?",
+                        "default": false
+                      },
+                      "default": {
+                        "description": "Default value for the parameter"
+                      }
+                    }
+                  }
+                },
+                "graphql": {
+                  "type": "boolean",
+                  "description": "Is this a GraphQL endpoint?",
+                  "default": false
+                },
+                "query": {
+                  "type": "string",
+                  "description": "GraphQL query for the endpoint"
+                },
+                "transform": {
+                  "type": "object",
+                  "description": "Response transformation",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Transformation type",
+                      "enum": ["extract", "map"],
+                      "default": "extract"
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "Path to extract from response"
+                    },
+                    "mapping": {
+                      "type": "object",
+                      "description": "Mapping for response transformation"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "headers": {
+            "type": "object",
+            "description": "Default headers to be sent with every request"
+          },
+          "timeout": {
+            "type": "number",
+            "description": "Request timeout in seconds",
+            "default": 30
+          },
+          "rate_limit": {
+            "type": "number",
+            "description": "Rate limit in requests per minute",
+            "default": 60
+          },
+          "retry_count": {
+            "type": "number",
+            "description": "Number of retry attempts for failed requests",
+            "default": 3
+          },
+          "capabilities": {
+            "type": "array",
+            "description": "Tool capabilities",
+            "items": {
+              "type": "string"
+            }
+          },
+          "category": {
+            "type": "string",
+            "description": "Tool category",
+            "default": "external"
+          }
+        }
+      },
+      "remoteToolConfig": {
+        "type": "object",
+        "required": ["name", "remote_url"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the remote tool"
+          },
+          "remote_url": {
+            "type": "string",
+            "description": "URL of the remote MCP server",
+            "format": "uri"
+          },
+          "auth_info": {
+            "type": "object",
+            "description": "Authentication information",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Authentication type",
+                "enum": ["none", "bearer", "basic", "apikey"],
+                "default": "none"
+              },
+              "token": {
+                "type": "string",
+                "description": "Bearer token for authentication"
+              },
+              "username": {
+                "type": "string",
+                "description": "Username for Basic authentication"
+              },
+              "password": {
+                "type": "string",
+                "description": "Password for Basic authentication"
+              },
+              "api_key": {
+                "type": "string",
+                "description": "API key for API Key authentication"
+              },
+              "header_name": {
+                "type": "string",
+                "description": "Header name for API Key authentication",
+                "default": "X-API-Key"
+              }
+            }
+          }
+        }
+      }
+    },
+    "oneOf": [
+      {
+        "$ref": "#/definitions/externalToolConfig"
+      },
+      {
+        "$ref": "#/definitions/remoteToolConfig"
+      }
+    ]
+  }

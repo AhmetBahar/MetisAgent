@@ -1,0 +1,7 @@
+{
+  "installation_date": "2025-08-03T16:04:02.902691",
+  "git_hooks_installed": false,
+  "pre_commit_config": "/home/ahmet/MetisAgent/MetisAgent2/.pre-commit-config.yaml",
+  "dashboard_path": "/home/ahmet/MetisAgent/MetisAgent2/.compliance/compliance_dashboard.html",
+  "initial_compliance_score": 0
+}

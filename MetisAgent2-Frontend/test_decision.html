@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Decision Component Test</title>
+    <style>
+        .decision-panel {
+            background-color: #f8f9fa;
+            border: 2px solid #007bff;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+        }
+        .decision-option {
+            background-color: #ffffff;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .decision-option:hover {
+            background-color: #f8f9fa;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Decision Component Test</h1>
+    
+    <div class="decision-panel">
+        <h4>🤔 Select Content Type</h4>
+        <p>Choose the type of social media content you want to create:</p>
+        
+        <div class="decision-option" onclick="selectOption('Single Instagram Post')">
+            1. Single Instagram Post
+        </div>
+        <div class="decision-option" onclick="selectOption('Instagram Story Series')">
+            2. Instagram Story Series
+        </div>
+        <div class="decision-option" onclick="selectOption('Multi-Platform Campaign')">
+            3. Multi-Platform Campaign
+        </div>
+        <div class="decision-option" onclick="selectOption('Brand Campaign')">
+            4. Brand Campaign
+        </div>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        function selectOption(choice) {
+            document.getElementById('result').innerHTML = `
+                <div style="background: #d4edda; padding: 10px; margin: 20px; border-radius: 5px;">
+                    ✅ Selected: <strong>${choice}</strong>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+Gmail OAuth2 Authorization URL:
+
+https://accounts.google.com/o/oauth2/auth?client_id=117336478735-nq2448utl9hutq6ds2d68qmr5o71culf.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A5001%2Foauth2%2Fgoogle%2Fcallback&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.send+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.modify+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.readonly&response_type=code&state=rkY6BXs2sY2T1zZSjdje46nck3eO8-2LNedX8WndXFg&access_type=offline&prompt=consent
+
+State: rkY6BXs2sY2T1zZSjdje46nck3eO8-2LNedX8WndXFg
+User ID: ahmetbahar.minor@gmail.com
+Services: gmail
+Expires in: 600 seconds (10 minutes)
+
+Bu URL'yi tarayıcınızda açın ve Google hesabınızla giriş yapın.
+İşlem tamamlandıktan sonra callback URL'sini paylaşın.

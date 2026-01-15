@@ -1,0 +1,135 @@
+{
+  "name": "rmms_datasource_tool",
+  "display_name": "RMMS DataSource Manager",
+  "description": "AI-powered Data Source management for RMMS - configure database connections, OPC UA, Modbus, MQTT sources",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.rmms_datasource_tool.rmms_datasource_tool",
+  "class_name": "RMMSDataSourceTool",
+
+  "dependencies": [
+    "httpx",
+    "json"
+  ],
+
+  "capabilities": [
+    {
+      "name": "list_datasources",
+      "description": "List all data sources, optionally filtered by company",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer", "description": "Filter by company ID"}
+        }
+      }
+    },
+    {
+      "name": "get_datasource",
+      "description": "Get a specific data source with its configuration",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "datasource_id": {"type": "integer", "description": "DataSource ID to retrieve"}
+        },
+        "required": ["datasource_id"]
+      }
+    },
+    {
+      "name": "create_datasource",
+      "description": "Create a new data source connection",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string", "description": "Name of the data source"},
+          "type": {"type": "string", "enum": ["sql_server", "mysql", "postgresql", "opc_ua", "modbus_tcp", "rest_api", "mqtt"]},
+          "company_id": {"type": "integer", "description": "Company ID"},
+          "connection_config": {"type": "object", "description": "Connection configuration"},
+          "refresh_interval": {"type": "integer", "default": 60},
+          "is_enabled": {"type": "boolean", "default": true}
+        },
+        "required": ["name", "type", "company_id"]
+      },
+      "examples": [
+        {
+          "input": {
+            "name": "Production SQL Server",
+            "type": "sql_server",
+            "company_id": 1,
+            "connection_config": {
+              "server": "db.example.com",
+              "database": "production",
+              "username": "user",
+              "password": "pass"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_datasource",
+      "description": "Update an existing data source configuration",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "datasource_id": {"type": "integer"},
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "connection_config": {"type": "object"},
+          "refresh_interval": {"type": "integer"},
+          "is_enabled": {"type": "boolean"}
+        },
+        "required": ["datasource_id"]
+      }
+    },
+    {
+      "name": "delete_datasource",
+      "description": "Delete a data source",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "datasource_id": {"type": "integer"}
+        },
+        "required": ["datasource_id"]
+      }
+    },
+    {
+      "name": "test_connection",
+      "description": "Test data source connection",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "datasource_id": {"type": "integer"}
+        },
+        "required": ["datasource_id"]
+      }
+    },
+    {
+      "name": "get_datasource_types",
+      "description": "Get available data source types and their properties",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://app-rmmsapi.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["rmms", "datasource", "database", "opc", "modbus", "mqtt", "industrial", "connections"]
+}

@@ -1,0 +1,199 @@
+{
+  "name": "rmms_scada_tool",
+  "display_name": "RMMS SCADA Designer",
+  "description": "AI-powered SCADA page design tool for RMMS - create pages, add widgets, configure tag bindings",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.rmms_scada_tool.rmms_scada_tool",
+  "class_name": "RMMSScadaTool",
+
+  "dependencies": [
+    "httpx",
+    "json"
+  ],
+
+  "capabilities": [
+    {
+      "name": "list_pages",
+      "description": "List all SCADA pages, optionally filtered by company",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer", "description": "Filter by company ID"}
+        }
+      }
+    },
+    {
+      "name": "analyze_page",
+      "description": "USE THIS for counting widgets or querying tags. Returns widget counts (gauge, button-menu, led-indicator etc.) and tag bindings. Keywords: kaç tane, adet, count, how many, tagId, bağlı.",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer", "description": "Page ID to analyze"}
+        },
+        "required": ["page_id"]
+      }
+    },
+    {
+      "name": "get_page",
+      "description": "Get raw page JSON for editing widgets. DO NOT use for counting - use analyze_page instead.",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer", "description": "Page ID to retrieve"}
+        },
+        "required": ["page_id"]
+      }
+    },
+    {
+      "name": "create_page",
+      "description": "Create a new SCADA page",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_name": {"type": "string", "description": "Name of the page"},
+          "company_id": {"type": "integer", "description": "Company ID"},
+          "width": {"type": "integer", "default": 1920},
+          "height": {"type": "integer", "default": 1080},
+          "background_color": {"type": "string", "default": "#1e1e1e"},
+          "is_home_page": {"type": "boolean", "default": false}
+        },
+        "required": ["page_name", "company_id"]
+      }
+    },
+    {
+      "name": "update_page",
+      "description": "Update an existing SCADA page properties",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer"},
+          "page_name": {"type": "string"},
+          "background_color": {"type": "string"},
+          "width": {"type": "integer"},
+          "height": {"type": "integer"},
+          "is_home_page": {"type": "boolean"},
+          "page_config": {"type": "object"}
+        },
+        "required": ["page_id"]
+      }
+    },
+    {
+      "name": "add_widget",
+      "description": "Add a widget to a SCADA page",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer"},
+          "widget_type": {"type": "string", "enum": ["text-label", "set-value", "button-menu", "led-indicator", "gauge", "box", "vrf-room", "navigation-button", "image"]},
+          "x": {"type": "number", "description": "X position"},
+          "y": {"type": "number", "description": "Y position"},
+          "width": {"type": "number"},
+          "height": {"type": "number"},
+          "properties": {"type": "object", "description": "Widget-specific properties including tagBinding"}
+        },
+        "required": ["page_id", "widget_type"]
+      },
+      "examples": [
+        {
+          "input": {
+            "page_id": 100,
+            "widget_type": "text-label",
+            "x": 100,
+            "y": 100,
+            "width": 200,
+            "height": 50,
+            "properties": {
+              "text": "Temperature",
+              "fontSize": 20,
+              "tagBinding": {"tagId": "11497", "property": "value"},
+              "unit": "°C"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_widget",
+      "description": "Update a widget's properties on a page",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer"},
+          "widget_id": {"type": "string"},
+          "updates": {"type": "object", "description": "Properties to update"}
+        },
+        "required": ["page_id", "widget_id", "updates"]
+      }
+    },
+    {
+      "name": "remove_widget",
+      "description": "Remove a widget from a page",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer"},
+          "widget_id": {"type": "string"}
+        },
+        "required": ["page_id", "widget_id"]
+      }
+    },
+    {
+      "name": "get_widget_types",
+      "description": "Get available widget types and their properties",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "get_tags",
+      "description": "Get available tags for widget bindings",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer"},
+          "search": {"type": "string"},
+          "limit": {"type": "integer", "default": 50}
+        }
+      }
+    },
+    {
+      "name": "set_page_background",
+      "description": "Set page background color or image",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer"},
+          "background_color": {"type": "string"},
+          "background_image": {"type": "string"}
+        },
+        "required": ["page_id"]
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://app-rmmsapi.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["rmms", "scada", "design", "widgets", "pages", "automation", "industrial"]
+}

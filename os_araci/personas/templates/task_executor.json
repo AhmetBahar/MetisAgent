@@ -1,0 +1,28 @@
+{
+    "persona_id": "system.task_executor",
+    "name": "System Task Executor",
+    "class_name": "TaskExecutorPersona",
+    "description": "Temel görev çalıştırma ve sistem yönetimi",
+    "capabilities": [
+      "task_execution",
+      "command_execution",
+      "file_management",
+      "system_management"
+    ],
+    "tool_categories": [
+      "general",
+      "system",
+      "file"
+    ],
+    "max_concurrent_tasks": 10,
+    "priority": 8,
+    "settings": {
+      "working_dir": "./",
+      "auth_token": "system_auth_token_123"
+    },
+    "personality_traits": {
+      "efficiency": "high",
+      "verbosity": "low",
+      "autonomy": "medium"
+    }
+  }

@@ -1,0 +1,71 @@
+USER REQUEST: gmail içindeki sondan ikinci mail ne hakkında?
+==================================================
+PROMPT SENT TO LLM:
+
+TASK: You are a workflow planner that ONLY returns JSON. Do NOT call tools. Do NOT execute actions. ONLY return workflow JSON.
+
+USER REQUEST: "gmail içindeki sondan ikinci mail ne hakkında?"
+
+AVAILABLE TOOLS:
+- todo_manager: Internal todo list management with workflow integration (create_todos, get_todos, update_todo_status, delete_todo, get_workflow_todos, clear_completed_todos)
+- graph_memory: Advanced graph-based memory with MCP server integration (create_entities, create_relations, add_observations, search_nodes, read_graph, open_nodes, delete_entities, delete_relations, delete_observations, store_tool_capability, get_user_tools, log_tool_operation, generate_tool_prompt, get_latest_operation, get_context_operation)
+- llm_tool: Chat with various LLM providers (OpenAI, Anthropic) (chat, get_providers, get_models, get_conversation, clear_conversation, get_user_conversations, create_user_conversation, store_memory)
+- sequential_thinking: Multi-step workflow planning and complex problem solving (plan_workflow, break_down_task, evaluate_complexity, match_tools_intelligently, optimize_sequence, analyze_dependencies, plan_context_aware_workflow, discover_tool_capabilities)
+- settings_manager: User settings and OAuth2 credentials management (get_user_setting, set_user_setting, get_api_key, set_api_key, get_oauth2_credentials, set_oauth2_credentials, get_user_mapping, set_user_mapping, get_all_users, get_user_profile, set_user_profile, get_google_client_credentials, set_google_client_credentials, get_user_property, set_user_property, delete_user_property)
+- command_executor: Execute system commands safely across platforms (execute, validate, get_platform_info, extract_zip, create_zip, list_zip_contents)
+- google_oauth2_manager: Google OAuth2 authentication and Gmail API access (gmail_list_messages, gmail_get_message, gmail_send_message, gmail_send_message_with_attachment, get_auth_url, exchange_code, get_oauth2_status, refresh_token, revoke_token, get_user_token, list_authorized_users, calendar_list_calendars, calendar_list_events, calendar_create_event, calendar_update_event, calendar_delete_event)
+- user_clarification: Handle tool conflicts and user choice requests (request_clarification, present_tool_conflict, format_choice_response)
+- gmail_helper: Gmail inbox mesajlarını kolay okuma ve subject çıkarma (get_latest_email_subject, get_positional_email, get_email_details, list_emails, send_email, send_email_with_attachment)
+- google_calendar: Google Calendar operations - events, scheduling, reminders (create_event, list_events, get_event, update_event, delete_event, get_calendars, create_calendar, get_busy_times, find_free_time)
+- google_drive: Google Drive file operations - upload, download, list, share (upload_file, download_file, list_files, create_folder, share_file, delete_file, get_file_info, search_files)
+- selenium_browser: Web browser automation with Selenium - navigate, interact, scrape (start_browser, close_browser, navigate, refresh, back, forward, find_element, find_elements, click, double_click, right_click, type_text, clear_text, select_dropdown, checkbox_toggle, get_text, get_attribute, get_page_source, get_title, get_current_url, screenshot, execute_script, scroll_to, wait_for_element, submit_form, wait_for_url_change, wait_for_text, smart_wait)
+- simple_visual_creator: Simple and reliable GPT-4o image generation using gpt-image-1 model (generate_image_with_openai, create_image_with_openai, generate_image_with_huggingface, generate_image, create_image, generate_social_media_image, generate_variations, load_and_display_image, check_provider_status, get_latest_image, list_available_images, select_existing_image, search_images_by_name, get_image_info)
+- social_media_workflow: Advanced social media campaign workflow management with 8-step LLM-driven process (create_campaign, get_campaign, update_campaign, list_campaigns, execute_workflow_step, get_workflow_template, validate_step_dependencies, add_campaign_asset, get_campaign_assets, adapt_content_for_platform, get_platform_requirements, submit_for_approval, process_approval, track_campaign_metrics, generate_campaign_report, get_latest_campaign, search_campaigns, instagram_login, instagram_logout, instagram_upload_photo, instagram_upload_story, instagram_like_media, instagram_comment_media, instagram_get_user_info, instagram_get_followers)
+- instagram_tool: Instagram otomasyonu - login, post, story, medya indirme (login, logout, upload_photo, upload_story, get_user_info, get_followers, like_media, comment_media)
+
+ANALYZE THE REQUEST AND CREATE LOGICAL STEPS USING THESE EXACT TOOLS AND ACTIONS.
+
+ANALYZE THE REQUEST AND CREATE LOGICAL STEPS USING THESE EXACT TOOLS AND ACTIONS.
+
+LLM should intelligently determine which tools and actions are needed based on the user request intent.
+
+CRITICAL: You must ONLY return JSON in this exact format. Do NOT call any tools. Do NOT execute any actions.
+
+{
+  "steps": [
+    {
+      "step_id": "step_1",
+      "tool_name": "appropriate_tool",
+      "action_name": "appropriate_action", 
+      "description": "Description of what this step accomplishes"
+    }
+  ],
+  "reasoning": "Explanation of why these tools and steps were chosen"
+}
+
+RULES:
+- ONLY return JSON, no other text
+- Do NOT call tools or execute actions  
+- Use exact tool/action names from available tools
+- Keep workflows simple and focused on user intent
+- Let tools handle their own complex internal workflows
+==================================================
+LLM RESPONSE:
+{
+  "steps": [
+    {
+      "step_id": "step_1",
+      "tool_name": "gmail_helper",
+      "action_name": "get_positional_email",
+      "description": "Retrieve the second to last email from the Gmail inbox."
+    },
+    {
+      "step_id": "step_2",
+      "tool_name": "gmail_helper",
+      "action_name": "get_email_details",
+      "description": "Extract details about the second to last email to understand its content."
+    }
+  ],
+  "reasoning": "The first step retrieves the second to last email from the user's Gmail inbox, and the second step extracts the content details of that email to answer the user's inquiry about its subject."
+}
+==================================================

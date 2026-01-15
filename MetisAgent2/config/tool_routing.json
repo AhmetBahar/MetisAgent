@@ -1,0 +1,390 @@
+{
+  "tool_routing_patterns": {
+    "command_executor": {
+      "description": "System command execution and terminal operations",
+      "priority": 10,
+      "patterns": [
+        {
+          "pattern": "execute.*command",
+          "weight": 10,
+          "language": "both"
+        },
+        {
+          "pattern": "run.*command",
+          "weight": 10,
+          "language": "both"
+        },
+        {
+          "pattern": "terminal",
+          "weight": 8,
+          "language": "both"
+        },
+        {
+          "pattern": "shell",
+          "weight": 8,
+          "language": "both"
+        },
+        {
+          "pattern": "bash|cmd|powershell",
+          "weight": 9,
+          "language": "both"
+        },
+        {
+          "pattern": "ls\\s|dir\\s|cat\\s|echo\\s",
+          "weight": 7,
+          "language": "both"
+        },
+        {
+          "pattern": "mkdir|touch|cd\\s|pwd",
+          "weight": 7,
+          "language": "both"
+        },
+        {
+          "pattern": "ps\\s|kill\\s|chmod",
+          "weight": 6,
+          "language": "both"
+        },
+        {
+          "pattern": "grep|find\\s",
+          "weight": 6,
+          "language": "both"
+        },
+        {
+          "pattern": "wget|curl",
+          "weight": 7,
+          "language": "both"
+        },
+        {
+          "pattern": "pip\\s|npm\\s|git\\s|docker\\s",
+          "weight": 8,
+          "language": "both"
+        }
+      ]
+    },
+    "selenium_browser": {
+      "description": "Web browser automation and scraping",
+      "priority": 9,
+      "patterns": [
+        {
+          "pattern": "browser|selenium",
+          "weight": 10,
+          "language": "both"
+        },
+        {
+          "pattern": "web.*automation",
+          "weight": 10,
+          "language": "english"
+        },
+        {
+          "pattern": "headless",
+          "weight": 8,
+          "language": "both"
+        },
+        {
+          "pattern": "navigate.*to|open.*website|open.*web",
+          "weight": 9,
+          "language": "english"
+        },
+        {
+          "pattern": "go.*to.*site|visit.*site",
+          "weight": 9,
+          "language": "english"
+        },
+        {
+          "pattern": "web.*scraping",
+          "weight": 9,
+          "language": "english"
+        },
+        {
+          "pattern": "click.*button|fill.*form|type.*text",
+          "weight": 8,
+          "language": "english"
+        },
+        {
+          "pattern": "screenshot",
+          "weight": 7,
+          "language": "both"
+        },
+        {
+          "pattern": "find.*element",
+          "weight": 7,
+          "language": "english"
+        },
+        {
+          "pattern": "web.*interaction|automated.*browser",
+          "weight": 8,
+          "language": "english"
+        },
+        {
+          "pattern": "chrome.*headless|web.*driver",
+          "weight": 7,
+          "language": "english"
+        },
+        {
+          "pattern": "page.*title",
+          "weight": 6,
+          "language": "english"
+        },
+        {
+          "pattern": "web.*başlık|site.*başlık|başlık.*oku",
+          "weight": 6,
+          "language": "turkish"
+        },
+        {
+          "pattern": "web.*oku|sayfa.*aç|siteyi.*aç",
+          "weight": 7,
+          "language": "turkish"
+        },
+        {
+          "pattern": "gemini.*web|gemini.*site|gemini.*aç|gemini.*git",
+          "weight": 8,
+          "language": "both"
+        }
+      ]
+    },
+    "google_oauth2_manager": {
+      "description": "Google OAuth2 authentication and Gmail API",
+      "priority": 8,
+      "patterns": [
+        {
+          "pattern": "oauth2",
+          "weight": 10,
+          "language": "both"
+        },
+        {
+          "pattern": "google.*auth",
+          "weight": 9,
+          "language": "both"
+        },
+        {
+          "pattern": "gmail.*api|google.*api",
+          "weight": 10,
+          "language": "both"
+        },
+        {
+          "pattern": "authenticate.*google",
+          "weight": 9,
+          "language": "english"
+        },
+        {
+          "pattern": "google.*login|google.*signin",
+          "weight": 8,
+          "language": "english"
+        }
+      ]
+    },
+    "gmail_helper": {
+      "description": "Gmail operations and email management",
+      "priority": 9,
+      "patterns": [
+        {
+          "pattern": "gmail|email|mail",
+          "weight": 10,
+          "language": "both"
+        },
+        {
+          "pattern": "eposta|mesaj",
+          "weight": 10,
+          "language": "turkish"
+        },
+        {
+          "pattern": "send.*email|send.*mail",
+          "weight": 9,
+          "language": "english"
+        },
+        {
+          "pattern": "email.*gönder|mail.*gönder|eposta.*gönder",
+          "weight": 9,
+          "language": "turkish"
+        },
+        {
+          "pattern": "inbox|outbox",
+          "weight": 8,
+          "language": "english"
+        },
+        {
+          "pattern": "gelen.*kutu|giden.*kutu",
+          "weight": 8,
+          "language": "turkish"
+        },
+        {
+          "pattern": "attachment|ek.*dosya",
+          "weight": 7,
+          "language": "both"
+        },
+        {
+          "pattern": "latest.*email|son.*mail|son.*email",
+          "weight": 8,
+          "language": "both"
+        }
+      ]
+    },
+    "simple_visual_creator": {
+      "description": "AI image generation and visual content creation",
+      "priority": 8,
+      "patterns": [
+        {
+          "pattern": "görsel|görüntü|resim",
+          "weight": 10,
+          "language": "turkish"
+        },
+        {
+          "pattern": "image|visual|picture",
+          "weight": 10,
+          "language": "english"
+        },
+        {
+          "pattern": "create.*image|generate.*image",
+          "weight": 10,
+          "language": "english"
+        },
+        {
+          "pattern": "görsel.*oluştur|görsel.*üret|resim.*oluştur",
+          "weight": 10,
+          "language": "turkish"
+        },
+        {
+          "pattern": "dall.*e|openai.*image",
+          "weight": 9,
+          "language": "both"
+        },
+        {
+          "pattern": "stable.*diffusion|midjourney",
+          "weight": 9,
+          "language": "both"
+        },
+        {
+          "pattern": "ai.*image|ai.*art",
+          "weight": 8,
+          "language": "english"
+        },
+        {
+          "pattern": "yapay.*zeka.*görsel|ai.*görsel",
+          "weight": 8,
+          "language": "turkish"
+        }
+      ]
+    },
+    "llm_tool": {
+      "description": "LLM chat and text processing",
+      "priority": 5,
+      "patterns": [
+        {
+          "pattern": "chat|conversation",
+          "weight": 6,
+          "language": "both"
+        },
+        {
+          "pattern": "sohbet|konuşma",
+          "weight": 6,
+          "language": "turkish"
+        },
+        {
+          "pattern": "ask.*question|question",
+          "weight": 5,
+          "language": "english"
+        },
+        {
+          "pattern": "soru.*sor|soru",
+          "weight": 5,
+          "language": "turkish"
+        },
+        {
+          "pattern": "explain|analyze",
+          "weight": 6,
+          "language": "english"
+        },
+        {
+          "pattern": "açıkla|analiz.*et",
+          "weight": 6,
+          "language": "turkish"
+        },
+        {
+          "pattern": "gpt|claude|llm",
+          "weight": 7,
+          "language": "both"
+        }
+      ]
+    },
+    "tool_manager": {
+      "description": "Dynamic tool installation and management",
+      "priority": 7,
+      "patterns": [
+        {
+          "pattern": "install.*tool|yükle.*araç",
+          "weight": 10,
+          "language": "both"
+        },
+        {
+          "pattern": "tool.*management|araç.*yönetim",
+          "weight": 9,
+          "language": "both"
+        },
+        {
+          "pattern": "add.*tool|ekle.*araç",
+          "weight": 9,
+          "language": "both"
+        },
+        {
+          "pattern": "list.*tools|araç.*listesi",
+          "weight": 8,
+          "language": "both"
+        },
+        {
+          "pattern": "remove.*tool|kaldır.*araç",
+          "weight": 8,
+          "language": "both"
+        }
+      ]
+    },
+    "sequential_thinking": {
+      "description": "Multi-step workflow planning and complex problem solving",
+      "priority": 6,
+      "patterns": [
+        {
+          "pattern": "workflow|iş.*akışı",
+          "weight": 8,
+          "language": "both"
+        },
+        {
+          "pattern": "step.*by.*step|adım.*adım",
+          "weight": 9,
+          "language": "both"
+        },
+        {
+          "pattern": "plan.*workflow|iş.*akışı.*planla",
+          "weight": 10,
+          "language": "both"
+        },
+        {
+          "pattern": "complex.*task|karmaşık.*görev",
+          "weight": 8,
+          "language": "both"
+        },
+        {
+          "pattern": "multi.*step|çok.*adım",
+          "weight": 9,
+          "language": "both"
+        },
+        {
+          "pattern": "orchestrat|orkestra",
+          "weight": 7,
+          "language": "both"
+        }
+      ]
+    }
+  },
+  "routing_config": {
+    "default_tool": "llm_tool",
+    "confidence_threshold": 0.3,
+    "max_tools_considered": 3,
+    "language_detection": true,
+    "fuzzy_matching": false,
+    "case_sensitive": false
+  },
+  "language_weights": {
+    "turkish": 1.2,
+    "english": 1.0,
+    "both": 1.1
+  }
+}

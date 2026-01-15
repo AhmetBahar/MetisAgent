@@ -1,0 +1,198 @@
+/* GoogleOAuthButton Styles */
+.auth-button {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 8px 0;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.auth-button.loading {
+  background: #f8f9fa;
+  border-color: #dee2e6;
+}
+
+.auth-button.error {
+  background: #fff5f5;
+  border-color: #fed7d7;
+  color: #c53030;
+}
+
+.auth-button.authenticated {
+  background: #f0fff4;
+  border-color: #9ae6b4;
+}
+
+.auth-button.unauthenticated {
+  background: #fffbf0;
+  border-color: #fbb6ce;
+}
+
+.oauth-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.status-indicator {
+  font-size: 20px;
+  font-weight: bold;
+  min-width: 24px;
+}
+
+.status-indicator.success {
+  color: #38a169;
+}
+
+.status-indicator.error {
+  color: #e53e3e;
+}
+
+.auth-info {
+  flex: 1;
+}
+
+.auth-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #2d3748;
+}
+
+.auth-details {
+  font-size: 12px;
+  color: #718096;
+  line-height: 1.4;
+}
+
+.user-email {
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 2px;
+}
+
+.user-name {
+  color: #718096;
+  margin-bottom: 4px;
+}
+
+.services {
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.oauth-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.oauth-btn:hover:not(:disabled) {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.oauth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.google-oauth {
+  background: #4285f4;
+  color: white;
+  border-color: #4285f4;
+}
+
+.google-oauth:hover:not(:disabled) {
+  background: #3367d6;
+  border-color: #3367d6;
+}
+
+.refresh-btn {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #38a169;
+}
+
+.revoke-btn {
+  background: #f56565;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.revoke-btn:hover:not(:disabled) {
+  background: #e53e3e;
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .auth-button {
+    padding: 12px;
+  }
+  
+  .oauth-status {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .auth-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .oauth-btn {
+    justify-content: center;
+  }
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.auth-button.loading span {
+  animation: pulse 1.5s ease-in-out infinite;
+}

@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@modelcontextprotocol/server-memory": "^2025.4.25",
+    "@modelcontextprotocol/server-sequential-thinking": "^2025.7.1"
+  }
+}

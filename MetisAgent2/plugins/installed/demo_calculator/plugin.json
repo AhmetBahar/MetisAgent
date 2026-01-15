@@ -1,0 +1,11 @@
+{
+  "name": "demo_calculator",
+  "version": "1.0.0",
+  "description": "demo_calculator plugin for MetisAgent2",
+  "author": "Plugin Developer",
+  "main_module": "demo_calculator",
+  "dependencies": [],
+  "capabilities": [
+    "demo_calculator_operations"
+  ]
+}

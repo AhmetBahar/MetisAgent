@@ -1,0 +1,15 @@
+# Google Tool Plugin Dependencies
+# CLAUDE.md COMPLIANT: Minimal, secure dependencies
+
+# Google API dependencies
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.0.0
+
+# Core dependencies
+requests>=2.25.0
+pytz>=2021.1
+
+# Optional: For better datetime handling
+python-dateutil>=2.8.0

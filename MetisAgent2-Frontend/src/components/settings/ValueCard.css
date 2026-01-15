@@ -1,0 +1,212 @@
+/* Value Card Styles */
+
+.value-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.value-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Styles */
+.form-container {
+    margin-bottom: 20px;
+}
+
+.form-field {
+    margin-bottom: 16px;
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.required {
+    color: #dc3545;
+    margin-left: 2px;
+}
+
+.field-input {
+    position: relative;
+}
+
+/* Input Styles */
+.field-input input,
+.field-input select,
+.field-input textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: white;
+}
+
+.field-input input:focus,
+.field-input select:focus,
+.field-input textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.field-input input:disabled,
+.field-input select:disabled,
+.field-input textarea:disabled {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.field-input input.error,
+.field-input select.error,
+.field-input textarea.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* Textarea specific */
+.field-input textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Checkbox Styles */
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.checkbox-text {
+    flex: 1;
+    line-height: 1.4;
+}
+
+/* Field Error */
+.field-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.field-error::before {
+    content: "⚠️";
+    font-size: 12px;
+}
+
+/* Card Actions */
+.card-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 16px;
+}
+
+.save-btn,
+.reset-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+}
+
+.save-btn.primary {
+    background: #28a745;
+    color: white;
+}
+
+.save-btn.primary:hover:not(:disabled) {
+    background: #1e7e34;
+}
+
+.reset-btn.secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.reset-btn.secondary:hover:not(:disabled) {
+    background: #545b62;
+}
+
+.save-btn:disabled,
+.reset-btn:disabled {
+    background: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Validation States */
+.form-field.valid .field-input input,
+.form-field.valid .field-input select,
+.form-field.valid .field-input textarea {
+    border-color: #28a745;
+}
+
+.form-field.invalid .field-input input,
+.form-field.invalid .field-input select,
+.form-field.invalid .field-input textarea {
+    border-color: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-actions {
+        flex-direction: column;
+    }
+    
+    .save-btn,
+    .reset-btn {
+        justify-content: center;
+    }
+    
+    .form-container {
+        margin-bottom: 16px;
+    }
+}

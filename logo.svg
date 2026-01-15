@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Circle outline -->
+  <circle cx="250" cy="200" r="120" fill="none" stroke="#F47C7C" stroke-width="18"/>
+  
+  <!-- Hexagon pattern -->
+  <g fill="#F47C7C">
+<!-- Top-Left -->
+<polygon points="224.3,128.3 248,140.8 248,170.3 224.3,183.8 200.6,170.3 200.6,141.8"/>
+
+<!-- Top-Right -->
+<polygon points="275.8,128.3 299.5,140.8 299.5,170.3 275.8,183.8 252,170.3 252,141.8"/>
+
+<!-- Left -->
+<polygon points="200.6,174.3 224.3,187.8 224.3,216.3 200.6,229.8 176.9,216.3 176.9,187.8"/>
+
+<!-- Center -->
+<polygon points="250,174.3 273.8,187.8 273.8,216.3 250,229.8 226.3,216.3 226.3,187.8"/>
+
+<!-- Right -->
+<polygon points="299.5,174.3 323.2,187.8 323.2,216.3 299.5,229.8 275.8,216.3 275.8,187.8"/>
+
+<!-- Bottom-Left -->
+<polygon points="224.3,220.3 248,233.8 248,262.3 224.3,275.8 200.6,262.3 200.6,233.8"/>
+
+<!-- Bottom-Right -->
+<polygon points="275.8,220.3 299.5,233.8 299.5,262.3 275.8,275.8 252,262.3 252,233.8"/>
+
+
+  </g>
+  
+  <!-- Text: Metis Agent -->
+  <text x="250" y="380" font-family="Arial, sans-serif" font-weight="bold" font-size="60" fill="#2B2D42" text-anchor="middle">Metis</text>
+  <text x="250" y="440" font-family="Arial, sans-serif" font-weight="bold" font-size="60" fill="#2B2D42" text-anchor="middle">Agent</text>
+</svg>

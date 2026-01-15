@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "tool_name": "rmms_datasource_tool",
+  "description": "RMMS DataSource Manager settings",
+  "cards": [
+    {
+      "card_id": "rmms_datasource_status",
+      "type": "status",
+      "category": "tools",
+      "title": "RMMS DataSource Tool",
+      "description": "Veri kaynagi yonetimi - SQL, OPC, Modbus, MQTT",
+      "icon": "🗄️",
+      "order": 14,
+      "metrics": [
+        {
+          "name": "API Connection",
+          "value": "Connected",
+          "status": "healthy",
+          "icon": "🔗"
+        },
+        {
+          "name": "SQL Server",
+          "value": "Supported",
+          "status": "healthy",
+          "icon": "🗃️"
+        },
+        {
+          "name": "OPC UA",
+          "value": "Supported",
+          "status": "healthy",
+          "icon": "🏭"
+        },
+        {
+          "name": "Modbus/MQTT",
+          "value": "Supported",
+          "status": "healthy",
+          "icon": "📡"
+        }
+      ],
+      "data_source": {
+        "capability": "tool_health",
+        "action": "get_health_status"
+      }
+    }
+  ]
+}

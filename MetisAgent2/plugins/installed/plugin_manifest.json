@@ -1,0 +1,70 @@
+{
+  "version": "1.0",
+  "plugins": [
+    {
+      "name": "test_plugin",
+      "version": "1.0.0",
+      "description": "test_plugin plugin for MetisAgent2",
+      "author": "Plugin Developer",
+      "main_module": "test_plugin",
+      "dependencies": [],
+      "capabilities": [
+        "test_plugin_operations"
+      ],
+      "enabled": false,
+      "installed_at": "2025-07-29T22:55:01.364526",
+      "last_updated": "2025-07-29T22:55:01.364551"
+    },
+    {
+      "name": "demo_calculator",
+      "version": "1.0.0",
+      "description": "demo_calculator plugin for MetisAgent2",
+      "author": "Plugin Developer",
+      "main_module": "demo_calculator",
+      "dependencies": [],
+      "capabilities": [
+        "demo_calculator_operations"
+      ],
+      "enabled": false,
+      "installed_at": "2025-07-29T23:08:35.741702",
+      "last_updated": "2025-07-29T23:08:35.741747"
+    },
+    {
+      "name": "social_media_workflow",
+      "version": "1.0.0",
+      "description": "LLM-driven social media campaign workflow management with hybrid graph memory",
+      "author": "MetisAgent2 Team",
+      "main_module": "social_media_workflow_tool",
+      "dependencies": ["graph_memory", "llm_tool", "simple_visual_creator"],
+      "capabilities": [
+        "campaign_management",
+        "workflow_orchestration", 
+        "content_planning",
+        "approval_workflow",
+        "platform_adaptation",
+        "analytics_tracking"
+      ],
+      "enabled": true,
+      "installed_at": "2025-08-01T00:10:00.000000",
+      "last_updated": "2025-08-01T00:10:00.000000"
+    },
+    {
+      "name": "instagram_tool",
+      "version": "1.0.0",
+      "description": "Instagram automation tool with instagrapi backend",
+      "author": "MetisAgent2 Team",
+      "main_module": "instagram_tool",
+      "dependencies": ["settings_manager"],
+      "capabilities": [
+        "instagram_login",
+        "post_creation",
+        "story_sharing",
+        "media_download",
+        "user_interaction"
+      ],
+      "enabled": true,
+      "installed_at": "2025-08-03T15:40:00.000000",
+      "last_updated": "2025-08-03T15:40:00.000000"
+    }
+  ]
+}

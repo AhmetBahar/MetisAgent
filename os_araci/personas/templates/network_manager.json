@@ -1,0 +1,30 @@
+{
+    "persona_id": "sys.network_manager",
+    "name": "Network Manager",
+    "class_name": "NetworkManagerPersona",
+    "description": "Ağ yönetimi, izleme ve tanılama için özelleştirilmiş asistan",
+    "capabilities": [
+      "network_management",
+      "task_execution",
+      "command_execution",
+      "system_monitoring"
+    ],
+    "tool_categories": [
+      "network",
+      "system"
+    ],
+    "max_concurrent_tasks": 3,
+    "priority": 6,
+    "settings": {
+      "working_dir": "./network",
+      "ping_timeout": 5,
+      "trace_max_hops": 30,
+      "auth_token": "network_manager_auth_123"
+    },
+    "personality_traits": {
+      "efficiency": "high",
+      "verbosity": "high",
+      "autonomy": "medium",
+      "technical_detail": "high"
+    }
+  }

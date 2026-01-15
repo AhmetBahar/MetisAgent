@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetisAgent2 - Todo Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .todo-item {
+            border-left: 4px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+        .todo-item.pending { border-left-color: #ffc107; }
+        .todo-item.in_progress { border-left-color: #0d6efd; }
+        .todo-item.completed { border-left-color: #198754; }
+        .todo-item.failed { border-left-color: #dc3545; }
+        
+        .workflow-section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .todo-content {
+            font-weight: 500;
+        }
+        
+        .workflow-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .real-time-indicator {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .todo-timestamp {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Header -->
+            <div class="col-12">
+                <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+                    <div class="container-fluid">
+                        <h1 class="navbar-brand m-0">
+                            <i class="fas fa-tasks me-2"></i>
+                            MetisAgent2 Todo Dashboard
+                        </h1>
+                        <div class="navbar-nav ms-auto">
+                            <span class="nav-item">
+                                <span class="nav-link real-time-indicator">
+                                    <i class="fas fa-wifi text-success"></i>
+                                    <span id="connection-status">Connected</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Todo List -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>
+                            Active Todos
+                        </h5>
+                        <div>
+                            <button id="refresh-todos" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button id="clear-all-todos" class="btn btn-outline-danger btn-sm ms-2">
+                                <i class="fas fa-trash"></i>
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="todo-container">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                                <p>Loading todos...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics Panel -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            Statistics
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body py-2">
+                                        <h4 id="pending-count">0</h4>
+                                        <small>Pending</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body py-2">
+                                        <h4 id="progress-count">0</h4>
+                                        <small>In Progress</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mt-2">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body py-2">
+                                        <h4 id="completed-count">0</h4>
+                                        <small>Completed</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mt-2">
+                                <div class="card bg-danger text-white">
+                                    <div class="card-body py-2">
+                                        <h4 id="failed-count">0</h4>
+                                        <small>Failed</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-time Events Log -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-rss me-2"></i>
+                            Real-time Events
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="events-log" style="height: 300px; overflow-y: auto;">
+                            <div class="text-muted small">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Waiting for events...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        class TodoDashboard {
+            constructor() {
+                this.todos = [];
+                this.socket = null;
+                this.userId = 'ahmetb@minor.com.tr'; // Use known user
+                this.init();
+            }
+
+            init() {
+                this.initializeSocket();
+                this.bindEvents();
+                this.loadTodos();
+            }
+
+            initializeSocket() {
+                this.socket = io();
+                
+                this.socket.on('connect', () => {
+                    console.log('Connected to WebSocket');
+                    document.getElementById('connection-status').textContent = 'Connected';
+                    this.addEvent('Connected to server', 'success');
+                    
+                    // Join user room
+                    this.socket.emit('join_workflow_room', { user_id: this.userId });
+                });
+
+                this.socket.on('disconnect', () => {
+                    console.log('Disconnected from WebSocket');
+                    document.getElementById('connection-status').textContent = 'Disconnected';
+                    this.addEvent('Disconnected from server', 'danger');
+                });
+
+                this.socket.on('todo_update', (data) => {
+                    console.log('Todo update received:', data);
+                    this.addEvent(`Todo update: ${data.event}`, 'info');
+                    this.loadTodos(); // Refresh todos
+                });
+
+                this.socket.on('todos_loaded', (data) => {
+                    console.log('Todos loaded:', data);
+                    this.updateTodoDisplay(data.todos);
+                });
+
+                this.socket.on('todos_cleared', () => {
+                    console.log('Todos cleared');
+                    this.addEvent('All todos cleared', 'warning');
+                    this.loadTodos();
+                });
+
+                this.socket.on('workflow_update', (data) => {
+                    console.log('Workflow update:', data);
+                    this.addEvent(`Workflow: ${data.workflow.title}`, 'primary');
+                    this.loadTodos(); // Refresh to get workflow todos
+                });
+
+                this.socket.on('workflow_step_update', (data) => {
+                    console.log('Step update:', data);
+                    this.addEvent(`Step: ${data.step.title} - ${data.step.status}`, 'info');
+                    this.loadTodos();
+                });
+            }
+
+            bindEvents() {
+                document.getElementById('refresh-todos').addEventListener('click', () => {
+                    this.loadTodos();
+                });
+
+                document.getElementById('clear-all-todos').addEventListener('click', () => {
+                    if (confirm('Are you sure you want to clear all todos?')) {
+                        this.clearAllTodos();
+                    }
+                });
+            }
+
+            loadTodos() {
+                this.socket.emit('get_todos', { user_id: this.userId });
+            }
+
+            clearAllTodos() {
+                this.socket.emit('clear_todos', { 
+                    user_id: this.userId,
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            updateTodoDisplay(todos) {
+                this.todos = todos;
+                const container = document.getElementById('todo-container');
+                
+                if (!todos || todos.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-check-circle fa-2x mb-3"></i>
+                            <p>No active todos</p>
+                        </div>
+                    `;
+                    this.updateStatistics();
+                    return;
+                }
+
+                // Group todos by workflow
+                const grouped = this.groupTodosByWorkflow(todos);
+                
+                container.innerHTML = '';
+                
+                for (const [workflowId, workflowTodos] of Object.entries(grouped)) {
+                    const workflowDiv = this.createWorkflowSection(workflowId, workflowTodos);
+                    container.appendChild(workflowDiv);
+                }
+                
+                this.updateStatistics();
+            }
+
+            groupTodosByWorkflow(todos) {
+                const grouped = {};
+                
+                todos.forEach(todo => {
+                    const workflowId = todo.workflow_id || 'general';
+                    if (!grouped[workflowId]) {
+                        grouped[workflowId] = [];
+                    }
+                    grouped[workflowId].push(todo);
+                });
+                
+                return grouped;
+            }
+
+            createWorkflowSection(workflowId, todos) {
+                const section = document.createElement('div');
+                section.className = 'workflow-section mb-4';
+                
+                const workflowTitle = workflowId === 'general' ? 'General Tasks' : `Workflow: ${workflowId.substring(0, 8)}...`;
+                
+                section.innerHTML = `
+                    <div class="workflow-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-project-diagram me-2"></i>
+                            ${workflowTitle}
+                            <span class="badge bg-light text-dark ms-2">${todos.length} tasks</span>
+                        </h6>
+                    </div>
+                    <div class="workflow-todos p-3">
+                        ${todos.map(todo => this.createTodoHTML(todo)).join('')}
+                    </div>
+                `;
+                
+                return section;
+            }
+
+            createTodoHTML(todo) {
+                const statusIcon = {
+                    'pending': 'fas fa-clock text-warning',
+                    'in_progress': 'fas fa-spinner fa-spin text-primary',
+                    'completed': 'fas fa-check text-success', 
+                    'failed': 'fas fa-times text-danger'
+                };
+
+                const priorityClass = {
+                    'high': 'border-danger',
+                    'medium': 'border-warning',
+                    'low': 'border-info'
+                };
+
+                return `
+                    <div class="card todo-item ${todo.status} ${priorityClass[todo.priority] || ''} mb-2">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="todo-content">${todo.content}</div>
+                                    <div class="todo-timestamp">${this.formatDate(todo.updated_at)}</div>
+                                </div>
+                                <div class="text-end">
+                                    <i class="${statusIcon[todo.status] || 'fas fa-question'}"></i>
+                                    <span class="badge status-badge ms-2 bg-${this.getStatusColor(todo.status)}">${todo.status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getStatusColor(status) {
+                const colors = {
+                    'pending': 'warning',
+                    'in_progress': 'primary',
+                    'completed': 'success',
+                    'failed': 'danger'
+                };
+                return colors[status] || 'secondary';
+            }
+
+            formatDate(dateStr) {
+                const date = new Date(dateStr);
+                return date.toLocaleString('tr-TR');
+            }
+
+            updateStatistics() {
+                const stats = {
+                    pending: 0,
+                    in_progress: 0,
+                    completed: 0,
+                    failed: 0
+                };
+
+                this.todos.forEach(todo => {
+                    if (stats.hasOwnProperty(todo.status)) {
+                        stats[todo.status]++;
+                    }
+                });
+
+                document.getElementById('pending-count').textContent = stats.pending;
+                document.getElementById('progress-count').textContent = stats.in_progress;
+                document.getElementById('completed-count').textContent = stats.completed;
+                document.getElementById('failed-count').textContent = stats.failed;
+            }
+
+            addEvent(message, type = 'info') {
+                const eventsLog = document.getElementById('events-log');
+                const event = document.createElement('div');
+                event.className = `small mb-2 text-${type}`;
+                event.innerHTML = `
+                    <div class="d-flex">
+                        <span class="me-2">${new Date().toLocaleTimeString()}</span>
+                        <span class="flex-grow-1">${message}</span>
+                    </div>
+                `;
+                
+                eventsLog.insertBefore(event, eventsLog.firstChild);
+                
+                // Keep only last 50 events
+                while (eventsLog.children.length > 50) {
+                    eventsLog.removeChild(eventsLog.lastChild);
+                }
+            }
+        }
+
+        // Initialize dashboard when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new TodoDashboard();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+{
+  "tool_metadata": {
+    "name": "rmms_scada_tool",
+    "description": "RMMS SCADA page management - list SCADA pages, create pages, view page details, add widgets, configure tag bindings. Use this tool for ALL SCADA page operations including listing, viewing, creating and designing SCADA visualization pages.",
+    "version": "1.0.0",
+    "tool_type": "plugin",
+    "author": "MetisAgent3",
+    "capabilities": [
+      {
+        "name": "list_pages",
+        "description": "List all SCADA pages for a company. Parameters: company_id (optional integer)",
+        "capability_type": "read"
+      },
+      {
+        "name": "analyze_page",
+        "description": "USE THIS for counting widgets or querying tags. Returns widget counts (gauge, button-menu, led-indicator etc.) and tag bindings. Keywords: kaç tane, adet, count, how many, tagId, bağlı. Parameters: page_id (required integer)",
+        "capability_type": "read"
+      },
+      {
+        "name": "find_widget",
+        "description": "USE THIS to find a widget by its text/title/label before updating it. Returns widget_id and position. Use before update_widget when you know the widget text but not its ID. Parameters: page_id (required), text/search/title/label (the text to search for)",
+        "capability_type": "read"
+      },
+      {
+        "name": "get_page",
+        "description": "Get raw page JSON for editing widgets. DO NOT use for counting - use analyze_page instead. Parameters: page_id (required integer)",
+        "capability_type": "read"
+      },
+      {
+        "name": "create_page",
+        "description": "Create new SCADA page. Parameters: page_name (required string), company_id (required integer), width (optional, default 1920), height (optional, default 1080)",
+        "capability_type": "write"
+      },
+      {
+        "name": "update_page",
+        "description": "Update page properties. Parameters: page_id (required integer), page_name (optional string), width (optional), height (optional)",
+        "capability_type": "write"
+      },
+      {
+        "name": "delete_page",
+        "description": "Delete a SCADA page. Parameters: page_id (integer) OR page_name (string) - can delete by ID or by name. company_id (optional integer)",
+        "capability_type": "write"
+      },
+      {
+        "name": "add_widget",
+        "description": "Add widget to SCADA page. Parameters: page_id (required integer), widget_type (required string - DISPLAY: text-label, text-box, led-indicator, progress-bar, gauge | CONTROL: button, button-menu, set-value, toggle-switch, combobox | CHART: trend-chart | SHAPE: box, line, circle | OTHER: image), x (optional int), y (optional int), width (optional int), height (optional int), properties (optional object with widget-specific settings like tagBinding, colors, etc.)",
+        "capability_type": "write"
+      },
+      {
+        "name": "update_widget",
+        "description": "Update widget position or properties. Supports relative moves: use move_up=true, move_down=true, move_left=true, move_right=true with delta (default 50px). Or use y='-50' to move up 50px, y='+50' to move down. Parameters: page_id, widget_id (from find_widget), move_up/move_down/move_left/move_right (boolean), delta (pixels, default 50)",
+        "capability_type": "write"
+      },
+      {
+        "name": "remove_widget",
+        "description": "Remove widget from page. Parameters: page_id (required integer), widget_id (required string)",
+        "capability_type": "write"
+      },
+      {
+        "name": "get_widget_types",
+        "description": "Get available widget types and their properties. No parameters required.",
+        "capability_type": "read"
+      },
+      {
+        "name": "get_tags",
+        "description": "Get tags for widget data bindings. Parameters: company_id (optional integer), search (optional string), limit (optional integer, default 50)",
+        "capability_type": "read"
+      },
+      {
+        "name": "get_custom_widgets",
+        "description": "Get available custom widgets from SCADA Widgets table. Parameters: company_id (optional integer). Returns custom widget definitions with their sub-components.",
+        "capability_type": "read"
+      },
+      {
+        "name": "add_custom_widget",
+        "description": "Add a custom widget to SCADA page. Parameters: page_id (required integer), custom_widget_id (required integer - ID from custom widgets table), x (optional int), y (optional int), properties (optional object for overriding default properties)",
+        "capability_type": "write"
+      }
+    ],
+    "dependencies": ["httpx"],
+    "tags": ["rmms", "scada", "scada-pages", "list-pages", "design", "widgets", "industrial", "visualization"]
+  },
+
+  "tool_configuration": {
+    "tool_name": "rmms_scada_tool",
+    "enabled": true,
+    "config": {
+      "plugin_type": "python_module",
+      "module_path": "plugins.rmms_scada_tool.rmms_scada_tool",
+      "class_name": "RMMSScadaTool",
+      "api_base_url": "https://app-rmmsapi.azurewebsites.net/api",
+      "timeout": 30,
+      "auth_user_id": "metis-agent",
+      "auth_company_id": "3"
+    },
+    "user_permissions": [],
+    "rate_limits": {
+      "requests_per_minute": 60,
+      "requests_per_hour": 500
+    }
+  }
+}

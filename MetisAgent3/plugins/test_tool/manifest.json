@@ -1,0 +1,9 @@
+{
+  "name": "test_tool",
+  "display_name": "Test Tool",
+  "description": "Simple test tool for settings cards",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "type": "plugin",
+  "enabled": true
+}

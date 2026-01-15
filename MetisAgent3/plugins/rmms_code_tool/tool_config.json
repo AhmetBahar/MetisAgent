@@ -1,0 +1,40 @@
+{
+  "tool_metadata": {
+    "name": "rmms_code_tool",
+    "description": "AI-powered code editor for RMMS - create and manage Python/C# codes for automation and calculations",
+    "version": "1.0.0",
+    "tool_type": "plugin",
+    "author": "MetisAgent3",
+    "capabilities": [
+      {"name": "list_codes", "description": "List all codes. Parameters: company_id (REQUIRED int), language (optional: python/csharp)", "capability_type": "read"},
+      {"name": "get_code", "description": "Get code by name. Parameters: company_id (REQUIRED int), code_name (REQUIRED string)", "capability_type": "read"},
+      {"name": "create_code", "description": "Create new Python/C# code. Parameters: company_id (REQUIRED int), name (REQUIRED string), code (REQUIRED string - the actual code content), language (optional: python/csharp, default python), description (optional string)", "capability_type": "write"},
+      {"name": "update_code", "description": "Update existing code. Parameters: company_id (REQUIRED int), code_name (REQUIRED string), code (optional new code content), description (optional string)", "capability_type": "write"},
+      {"name": "delete_code", "description": "Delete a code. Parameters: company_id (REQUIRED int), code_name (REQUIRED string)", "capability_type": "write"},
+      {"name": "validate_code", "description": "Validate code syntax locally. Parameters: code (REQUIRED string), language (optional: python/csharp)", "capability_type": "read"},
+      {"name": "execute_code", "description": "Execute code on server. Parameters: company_id (REQUIRED int), code_name (REQUIRED string), context (optional object with input variables), enable_logging (optional bool), watchdog_timeout (optional int ms)", "capability_type": "execute"},
+      {"name": "get_template", "description": "Get code template. Parameters: language (optional: python/csharp)", "capability_type": "read"},
+      {"name": "get_examples", "description": "Get example codes. Parameters: language (optional: python/csharp)", "capability_type": "read"},
+      {"name": "get_languages", "description": "Get supported languages (python, csharp)", "capability_type": "read"}
+    ],
+    "dependencies": ["httpx"],
+    "tags": ["rmms", "code", "python", "csharp", "editor", "automation", "industrial"]
+  },
+
+  "tool_configuration": {
+    "tool_name": "rmms_code_tool",
+    "enabled": true,
+    "config": {
+      "plugin_type": "python_module",
+      "module_path": "plugins.rmms_code_tool.rmms_code_tool",
+      "class_name": "RMMSCodeTool",
+      "api_base_url": "https://rmms-metis-engine.azurewebsites.net/api",
+      "timeout": 30
+    },
+    "user_permissions": [],
+    "rate_limits": {
+      "requests_per_minute": 60,
+      "requests_per_hour": 500
+    }
+  }
+}

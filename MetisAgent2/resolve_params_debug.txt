@@ -1,0 +1,5 @@
+_resolve_step_params CALLED
+Step: Extract details about the second to last email to understand its content.
+Tool: gmail_helper
+Action: get_email_details
+Step params: {'message_id': 'to_be_extracted'}

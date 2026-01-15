@@ -1,0 +1,16 @@
+{
+  "name": "social_media_workflow",
+  "version": "1.0.0",
+  "description": "LLM-driven social media campaign workflow management with hybrid graph memory",
+  "author": "MetisAgent2 Team",
+  "main_module": "social_media_workflow_tool",
+  "dependencies": ["graph_memory", "llm_tool", "simple_visual_creator"],
+  "capabilities": [
+    "campaign_management",
+    "workflow_orchestration", 
+    "content_planning",
+    "approval_workflow",
+    "platform_adaptation",
+    "analytics_tracking"
+  ]
+}

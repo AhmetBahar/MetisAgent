@@ -1,0 +1,210 @@
+{
+  "name": "rmms_task_tool",
+  "display_name": "RMMS Task Manager",
+  "description": "AI-powered task management for RMMS - create tasks, assign to users, track progress, and manage priorities",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.rmms_task_tool.rmms_task_tool",
+  "class_name": "RMMSTaskTool",
+
+  "dependencies": [
+    "httpx"
+  ],
+
+  "capabilities": [
+    {
+      "name": "list_tasks",
+      "description": "List all tasks, optionally filtered by status, priority, category, or assignee",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer"},
+          "status": {"type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"]},
+          "priority": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+          "assigned_to": {"type": "integer"},
+          "category": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "get_task",
+      "description": "Get a specific task by ID",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "integer"}
+        },
+        "required": ["task_id"]
+      }
+    },
+    {
+      "name": "create_task",
+      "description": "Create a new task",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "title": {"type": "string", "description": "Task title"},
+          "description": {"type": "string"},
+          "company_id": {"type": "integer"},
+          "priority": {"type": "string", "enum": ["low", "medium", "high", "critical"], "default": "medium"},
+          "category": {"type": "string", "description": "Task category"},
+          "assigned_to": {"type": "integer", "description": "User ID to assign"},
+          "due_date": {"type": "string", "description": "Due date (ISO format)"},
+          "related_tag_id": {"type": "integer", "description": "Related tag ID"},
+          "related_page_id": {"type": "integer", "description": "Related SCADA page ID"}
+        },
+        "required": ["title"]
+      },
+      "examples": [
+        {
+          "input": {
+            "title": "Check sensor calibration",
+            "description": "Verify temperature sensor calibration in Building A",
+            "priority": "high",
+            "category": "calibration",
+            "due_date": "2024-12-30"
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_task",
+      "description": "Update an existing task",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "integer"},
+          "title": {"type": "string"},
+          "description": {"type": "string"},
+          "priority": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+          "category": {"type": "string"},
+          "due_date": {"type": "string"}
+        },
+        "required": ["task_id"]
+      }
+    },
+    {
+      "name": "delete_task",
+      "description": "Delete a task",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "integer"}
+        },
+        "required": ["task_id"]
+      }
+    },
+    {
+      "name": "assign_task",
+      "description": "Assign a task to a user",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "integer"},
+          "user_id": {"type": "integer"}
+        },
+        "required": ["task_id", "user_id"]
+      }
+    },
+    {
+      "name": "update_status",
+      "description": "Update task status",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "integer"},
+          "status": {"type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"]},
+          "notes": {"type": "string", "description": "Optional status change notes"}
+        },
+        "required": ["task_id", "status"]
+      }
+    },
+    {
+      "name": "add_comment",
+      "description": "Add a comment to a task",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "integer"},
+          "comment": {"type": "string"},
+          "author": {"type": "string", "default": "MetisAgent"}
+        },
+        "required": ["task_id", "comment"]
+      }
+    },
+    {
+      "name": "get_comments",
+      "description": "Get all comments for a task",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "integer"}
+        },
+        "required": ["task_id"]
+      }
+    },
+    {
+      "name": "get_task_history",
+      "description": "Get task history/audit trail",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "integer"}
+        },
+        "required": ["task_id"]
+      }
+    },
+    {
+      "name": "get_statuses",
+      "description": "Get available task statuses",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "get_priorities",
+      "description": "Get available task priorities",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "get_categories",
+      "description": "Get available task categories",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "get_users",
+      "description": "Get users that can be assigned to tasks",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer"}
+        }
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://app-rmmsapi.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["rmms", "task", "management", "workflow", "assignment", "industrial"]
+}

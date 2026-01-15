@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "tool_name": "rmms_scada_tool",
+  "description": "RMMS SCADA Page Designer settings",
+  "cards": [
+    {
+      "card_id": "rmms_scada_status",
+      "type": "status",
+      "category": "tools",
+      "title": "RMMS SCADA Tool",
+      "description": "SCADA sayfa tasarimi ve widget yonetimi",
+      "icon": "🖥️",
+      "order": 10,
+      "metrics": [
+        {
+          "name": "API Connection",
+          "value": "Connected",
+          "status": "healthy",
+          "icon": "🔗"
+        },
+        {
+          "name": "Pages",
+          "value": "Ready",
+          "status": "healthy",
+          "icon": "📄"
+        },
+        {
+          "name": "Widgets",
+          "value": "9 Types",
+          "status": "healthy",
+          "icon": "🧩"
+        }
+      ],
+      "data_source": {
+        "capability": "tool_health",
+        "action": "get_health_status"
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+# MetisAgent3 Bridge Server Requirements
+# Flask Bridge between React Frontend and MetisAgent3 Backend
+
+# Flask web framework and extensions
+Flask==3.0.0
+Flask-CORS==4.0.0  
+Flask-SocketIO==5.3.6
+
+# HTTP and WebSocket libraries
+requests==2.31.0
+python-socketio==5.10.0
+eventlet==0.33.3
+
+# JSON and data handling
+pydantic==2.5.2
+ujson==5.8.0
+
+# Async support
+asyncio-mqtt==0.16.1
+aiofiles==23.2.1
+
+# Logging and monitoring
+structlog==23.2.0
+
+# Utilities
+python-dotenv==1.0.0
+pathlib2==2.3.7
+
+# MetisAgent3 dependencies (already installed)
+# sqlite3 (built-in)
+# datetime (built-in)
+# logging (built-in)
+# typing (built-in)

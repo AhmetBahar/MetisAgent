@@ -1,0 +1,45 @@
+/* src/components/Memory/MemoryPanel.css */
+.memory-panel {
+    padding: 10px;
+  }
+  
+  .memory-panel-header {
+    margin-bottom: 20px;
+  }
+  
+  .memory-card {
+    transition: all 0.2s ease;
+  }
+  
+  .memory-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  .memory-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  
+  .memory-actions {
+    display: flex;
+  }
+  
+  .category-badge, 
+  .tag-badge {
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .category-badge:hover, 
+  .tag-badge:hover {
+    opacity: 0.8;
+  }
+  
+  .add-memory-form {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }

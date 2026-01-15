@@ -1,0 +1,440 @@
+{
+  "memories": {
+    "59623d15-e087-46d1-bbad-e2086c41f971": {
+      "id": "59623d15-e087-46d1-bbad-e2086c41f971",
+      "content": "Instagram post created: SimpleAgent ile yapay zeka destekli sosyal medya yönetimi\\!...",
+      "content_hash": "81dc4d9a5e0eee384bee8af4f178d399",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "ai",
+        "socialmedia",
+        "automation"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_135610"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T13:56:10.958430",
+      "updated_at": "2025-07-01T13:56:10.958430",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "9931aacf-4a40-44fd-a8a0-5833aed24bd0": {
+      "id": "9931aacf-4a40-44fd-a8a0-5833aed24bd0",
+      "content": "Instagram post created: AI is transforming our world!...",
+      "content_hash": "6f9d117eae722b17776963f106e200b8",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_135727"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T13:57:27.144892",
+      "updated_at": "2025-07-01T13:57:27.144892",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce": {
+      "id": "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "content": "Instagram post created: 🚀 Tech deep-dive into artificial intelligence\n\nExploring artificial intelligence - sharing insights ...",
+      "content_hash": "b6c283aa4fc99b5069af94cb9148781f",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy",
+        "follow",
+        "like4like",
+        "artificialintelligence"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_135727"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T13:57:27.146221",
+      "updated_at": "2025-07-01T13:57:27.146221",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "99fe2f64-2a0e-49b7-bbf9-045c522de05f": {
+      "id": "99fe2f64-2a0e-49b7-bbf9-045c522de05f",
+      "content": "Instagram post created: AI is transforming our world!...",
+      "content_hash": "6f9d117eae722b17776963f106e200b8",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_135749"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T13:57:49.002197",
+      "updated_at": "2025-07-01T13:57:49.002197",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "b0073ec1-956e-40bc-a618-ab163a40cfd9": {
+      "id": "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "content": "Instagram post created: 🚀 Tech deep-dive into artificial intelligence\n\nExploring artificial intelligence - sharing insights ...",
+      "content_hash": "b6c283aa4fc99b5069af94cb9148781f",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy",
+        "follow",
+        "like4like",
+        "artificialintelligence"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_135749"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T13:57:49.005267",
+      "updated_at": "2025-07-01T13:57:49.005267",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "6aa8ecb5-949d-431a-9b63-21cd526c08b9": {
+      "id": "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "content": "Instagram post created: 🌸 Anıl Tekstil'in yeni çocuk koleksiyonu ile tanışın! \n    \nÇocuklarınızın her anını özel kılan, pas...",
+      "content_hash": "eedc64d9c013a75df2a12b9f94567586",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy",
+        "follow",
+        "like4like",
+        "çocukgiyimitekstilmoda"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_140524"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T14:05:24.471251",
+      "updated_at": "2025-07-01T14:05:24.471251",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "9918b9ff-b6e2-4736-9070-ff16f8c05ef2": {
+      "id": "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "content": "Instagram post created: 💡 Exploring Anıl Tekstil çocuk giyimi koleksiyonu pastel renkler bahçe balonlar\n\nExploring Anıl Teks...",
+      "content_hash": "8e2f62f16f732d5435884f3d9a9213ef",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy",
+        "follow",
+        "like4like",
+        "anıltekstilçocukgiyimikoleksiyonupastelrenklerbahçebalonlar"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_140524"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T14:05:24.473469",
+      "updated_at": "2025-07-01T14:05:24.473469",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "ac879aa3-5116-44de-9eda-f201db18997e": {
+      "id": "ac879aa3-5116-44de-9eda-f201db18997e",
+      "content": "Instagram post created: 🌸 Anıl Tekstil'in yeni çocuk koleksiyonu ile tanışın\\! \n\nÇocuklarınızın her anını özel kılan, pastel...",
+      "content_hash": "135d14fdfaf04040018f227e281a9aed",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy",
+        "follow",
+        "like4like",
+        "çocukgiyimitekstilmodaanıl"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_142110"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T14:21:10.178380",
+      "updated_at": "2025-07-01T14:21:10.178380",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201": {
+      "id": "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "content": "Instagram post created: 💡 Exploring Anıl Tekstil çocuk giyimi koleksiyonu pastel renkler bahçe balonlar anneler gurur\n\nExplo...",
+      "content_hash": "a7a7773887e4f1751c66a55c554ebb35",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy",
+        "follow",
+        "like4like",
+        "anıltekstilçocukgiyimikoleksiyonupastelrenklerbahçebalonlarannelergurur"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_142158"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T14:21:58.607218",
+      "updated_at": "2025-07-01T14:21:58.607218",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "5c0a37e5-6125-4835-945e-13f9011fe7ef": {
+      "id": "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "content": "Instagram post created: 🌸 Anıl Tekstil'in yeni çocuk koleksiyonu ile tanışın\\! \n\nÇocuklarınızın her anını özel kılan, pastel...",
+      "content_hash": "135d14fdfaf04040018f227e281a9aed",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy",
+        "follow",
+        "like4like",
+        "çocukgiyimitekstilmodaanıl"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_142424"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T14:24:24.687320",
+      "updated_at": "2025-07-01T14:24:24.687320",
+      "access_count": 0,
+      "last_accessed": null
+    },
+    "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2": {
+      "id": "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2",
+      "content": "Instagram post created: 💡 Exploring Anıl Tekstil çocuk giyimi koleksiyonu pastel renkler bahçe balonlar anneler gurur\n\nExplo...",
+      "content_hash": "a7a7773887e4f1751c66a55c554ebb35",
+      "category": "social_media",
+      "tags": [
+        "instagram",
+        "post",
+        "instagood",
+        "photooftheday",
+        "love",
+        "beautiful",
+        "happy",
+        "follow",
+        "like4like",
+        "anıltekstilçocukgiyimikoleksiyonupastelrenklerbahçebalonlarannelergurur"
+      ],
+      "context": {
+        "platform": "instagram",
+        "post_id": "post_20250701_142459"
+      },
+      "user_id": "default",
+      "priority": 2,
+      "created_at": "2025-07-01T14:24:59.093185",
+      "updated_at": "2025-07-01T14:24:59.093185",
+      "access_count": 0,
+      "last_accessed": null
+    }
+  },
+  "categories": {
+    "social_media": 11
+  },
+  "tags": {
+    "instagram": [
+      "59623d15-e087-46d1-bbad-e2086c41f971",
+      "9931aacf-4a40-44fd-a8a0-5833aed24bd0",
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "99fe2f64-2a0e-49b7-bbf9-045c522de05f",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ],
+    "post": [
+      "59623d15-e087-46d1-bbad-e2086c41f971",
+      "9931aacf-4a40-44fd-a8a0-5833aed24bd0",
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "99fe2f64-2a0e-49b7-bbf9-045c522de05f",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ],
+    "ai": [
+      "59623d15-e087-46d1-bbad-e2086c41f971"
+    ],
+    "socialmedia": [
+      "59623d15-e087-46d1-bbad-e2086c41f971"
+    ],
+    "automation": [
+      "59623d15-e087-46d1-bbad-e2086c41f971"
+    ],
+    "instagood": [
+      "9931aacf-4a40-44fd-a8a0-5833aed24bd0",
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "99fe2f64-2a0e-49b7-bbf9-045c522de05f",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ],
+    "photooftheday": [
+      "9931aacf-4a40-44fd-a8a0-5833aed24bd0",
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "99fe2f64-2a0e-49b7-bbf9-045c522de05f",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ],
+    "love": [
+      "9931aacf-4a40-44fd-a8a0-5833aed24bd0",
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "99fe2f64-2a0e-49b7-bbf9-045c522de05f",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ],
+    "beautiful": [
+      "9931aacf-4a40-44fd-a8a0-5833aed24bd0",
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "99fe2f64-2a0e-49b7-bbf9-045c522de05f",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ],
+    "happy": [
+      "9931aacf-4a40-44fd-a8a0-5833aed24bd0",
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "99fe2f64-2a0e-49b7-bbf9-045c522de05f",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ],
+    "follow": [
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ],
+    "like4like": [
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9",
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9",
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2",
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ],
+    "artificialintelligence": [
+      "d5e7c373-c9b0-431d-b1d0-ec52ac14b3ce",
+      "b0073ec1-956e-40bc-a618-ab163a40cfd9"
+    ],
+    "çocukgiyimitekstilmoda": [
+      "6aa8ecb5-949d-431a-9b63-21cd526c08b9"
+    ],
+    "anıltekstilçocukgiyimikoleksiyonupastelrenklerbahçebalonlar": [
+      "9918b9ff-b6e2-4736-9070-ff16f8c05ef2"
+    ],
+    "çocukgiyimitekstilmodaanıl": [
+      "ac879aa3-5116-44de-9eda-f201db18997e",
+      "5c0a37e5-6125-4835-945e-13f9011fe7ef"
+    ],
+    "anıltekstilçocukgiyimikoleksiyonupastelrenklerbahçebalonlarannelergurur": [
+      "551abbe1-bfb3-4d5e-9f9a-cc9941eb9201",
+      "4c9a80bc-9f8e-4ffd-b3b1-80f17b19fdb2"
+    ]
+  },
+  "last_saved": "2025-07-01T14:24:59.093224"
+}

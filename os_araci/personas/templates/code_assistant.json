@@ -1,0 +1,36 @@
+{
+    "persona_id": "dev.code_assistant",
+    "name": "Code Assistant",
+    "class_name": "CodeAssistantPersona",
+    "description": "Kod yazma, düzenleme ve analiz için özelleştirilmiş asistan",
+    "capabilities": [
+      "code_generation",
+      "code_analysis",
+      "task_execution",
+      "file_management"
+    ],
+    "tool_categories": [
+      "development",
+      "file"
+    ],
+    "max_concurrent_tasks": 5,
+    "priority": 7,
+    "settings": {
+      "working_dir": "./code",
+      "supported_languages": [
+        "python",
+        "javascript",
+        "typescript",
+        "html",
+        "css",
+        "bash"
+      ],
+      "auth_token": "code_assistant_auth_123"
+    },
+    "personality_traits": {
+      "efficiency": "high",
+      "verbosity": "medium",
+      "autonomy": "low",
+      "helpfulness": "high"
+    }
+  }

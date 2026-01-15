@@ -1,0 +1,223 @@
+{
+  "name": "rmms_workflow_tool",
+  "display_name": "RMMS Workflow Designer",
+  "description": "AI-powered workflow design tool for RMMS - create workflows, add nodes, define connections and automation logic",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.rmms_workflow_tool.rmms_workflow_tool",
+  "class_name": "RMMSWorkflowTool",
+
+  "dependencies": [
+    "httpx",
+    "json",
+    "uuid"
+  ],
+
+  "capabilities": [
+    {
+      "name": "list_workflows",
+      "description": "List all workflows, optionally filtered by company",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer"}
+        }
+      }
+    },
+    {
+      "name": "get_workflow",
+      "description": "Get a specific workflow with its full definition",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"}
+        },
+        "required": ["workflow_id"]
+      }
+    },
+    {
+      "name": "create_workflow",
+      "description": "Create a new workflow with initial trigger",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_name": {"type": "string"},
+          "company_id": {"type": "integer"},
+          "description": {"type": "string"},
+          "trigger_type": {"type": "string", "enum": ["schedule", "tag_change", "manual", "alarm"]},
+          "trigger_properties": {"type": "object"},
+          "is_active": {"type": "boolean", "default": true}
+        },
+        "required": ["workflow_name", "company_id"]
+      }
+    },
+    {
+      "name": "update_workflow",
+      "description": "Update workflow metadata",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"},
+          "workflow_name": {"type": "string"},
+          "description": {"type": "string"},
+          "is_active": {"type": "boolean"}
+        },
+        "required": ["workflow_id"]
+      }
+    },
+    {
+      "name": "delete_workflow",
+      "description": "Delete a workflow",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"}
+        },
+        "required": ["workflow_id"]
+      }
+    },
+    {
+      "name": "add_node",
+      "description": "Add a node to a workflow",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"},
+          "node_type": {"type": "string", "enum": ["trigger", "condition", "action", "loop", "parallel", "end"]},
+          "node_subtype": {"type": "string"},
+          "position": {"type": "object", "properties": {"x": {"type": "number"}, "y": {"type": "number"}}},
+          "properties": {"type": "object"},
+          "label": {"type": "string"}
+        },
+        "required": ["workflow_id", "node_type"]
+      },
+      "examples": [
+        {
+          "input": {
+            "workflow_id": 1,
+            "node_type": "condition",
+            "node_subtype": "tag_compare",
+            "properties": {"tagId": "11497", "operator": ">", "value": "30"},
+            "label": "Check Temperature"
+          }
+        },
+        {
+          "input": {
+            "workflow_id": 1,
+            "node_type": "action",
+            "node_subtype": "set_tag",
+            "properties": {"tagId": "11500", "value": "1"},
+            "label": "Turn On Cooling"
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_node",
+      "description": "Update a node's properties",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"},
+          "node_id": {"type": "string"},
+          "updates": {"type": "object"}
+        },
+        "required": ["workflow_id", "node_id", "updates"]
+      }
+    },
+    {
+      "name": "remove_node",
+      "description": "Remove a node from a workflow",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"},
+          "node_id": {"type": "string"}
+        },
+        "required": ["workflow_id", "node_id"]
+      }
+    },
+    {
+      "name": "connect_nodes",
+      "description": "Create a connection between two nodes",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"},
+          "source_id": {"type": "string"},
+          "target_id": {"type": "string"},
+          "label": {"type": "string"},
+          "condition": {"type": "string", "description": "For conditional branches (true/false)"}
+        },
+        "required": ["workflow_id", "source_id", "target_id"]
+      }
+    },
+    {
+      "name": "disconnect_nodes",
+      "description": "Remove connection between two nodes",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"},
+          "source_id": {"type": "string"},
+          "target_id": {"type": "string"}
+        },
+        "required": ["workflow_id", "source_id", "target_id"]
+      }
+    },
+    {
+      "name": "get_node_types",
+      "description": "Get available node types and their properties",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "validate_workflow",
+      "description": "Validate workflow structure and connections",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"}
+        },
+        "required": ["workflow_id"]
+      }
+    },
+    {
+      "name": "execute_workflow",
+      "description": "Execute a workflow manually",
+      "capability_type": "execute",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workflow_id": {"type": "integer"},
+          "input_params": {"type": "object"}
+        },
+        "required": ["workflow_id"]
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://app-rmmsapi.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["rmms", "workflow", "automation", "design", "nodes", "industrial"]
+}

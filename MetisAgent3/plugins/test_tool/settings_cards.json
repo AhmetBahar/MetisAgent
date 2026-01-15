@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "tool_name": "test_tool",
+  "description": "Test settings cards",
+  "cards": [
+    {
+      "card_id": "test_action",
+      "type": "action",
+      "category": "general",
+      "title": "Test Action Card",
+      "description": "Simple test action card",
+      "icon": "🔧",
+      "order": 1,
+      "actions": [
+        {
+          "id": "test_button",
+          "type": "primary",
+          "label": "Test Button",
+          "tool_call": {
+            "capability": "test",
+            "action": "test"
+          }
+        }
+      ],
+      "data_source": {
+        "capability": "test",
+        "action": "status"
+      }
+    }
+  ]
+}

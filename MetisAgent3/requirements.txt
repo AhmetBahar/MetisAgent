@@ -1,0 +1,44 @@
+# MetisAgent3 Requirements
+# Flask and web framework
+Flask==3.0.0
+Flask-CORS==4.0.0
+Flask-SocketIO==5.3.6
+Werkzeug>=3.0.0
+
+# HTTP and networking
+requests==2.31.0
+httpx==0.25.2
+python-socketio==5.10.0
+eventlet==0.33.3
+
+# Data handling
+pydantic==2.5.2
+email-validator==2.1.0
+ujson==5.8.0
+
+# Async support
+aiofiles==23.2.1
+
+# Logging
+structlog==23.2.0
+
+# Environment
+python-dotenv==1.0.0
+
+# Google APIs
+google-api-python-client==2.108.0
+google-auth==2.23.4
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.1.1
+pytz==2023.3
+
+# Azure support
+azure-storage-blob==12.19.0
+azure-identity==1.15.0
+pyodbc==5.0.1
+
+# Database
+cryptography==41.0.7
+
+# Utilities
+python-dateutil==2.8.2

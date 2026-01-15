@@ -1,0 +1,33 @@
+{
+  "migration_results": {
+    "chromadb_migration": {
+      "users_migrated": 2,
+      "api_keys_migrated": 0,
+      "oauth_tokens_migrated": 0,
+      "personas_migrated": 2,
+      "errors": []
+    },
+    "json_migration": {
+      "oauth_tokens_migrated": 0,
+      "user_settings_migrated": 0,
+      "graph_memory_migrated": 2,
+      "errors": []
+    },
+    "total_errors": 0,
+    "migration_timestamp": "2025-07-25T12:05:44.970405"
+  },
+  "validation_results": {
+    "sqlite_users_count": 8,
+    "sqlite_properties_count": 29,
+    "sample_user_data": {
+      "user_id": "test_clean",
+      "properties_count": 2,
+      "sample_properties": [
+        "name",
+        "api_key_openai"
+      ]
+    },
+    "validation_passed": true
+  },
+  "backup_directory": "migration_backup_20250725_120544"
+}

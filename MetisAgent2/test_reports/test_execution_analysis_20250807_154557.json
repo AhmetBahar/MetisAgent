@@ -1,0 +1,344 @@
+{
+  "analysis_timestamp": "2025-08-07T15:45:57.174815",
+  "execution_analysis": {
+    "execution_successful": true,
+    "return_code": 0,
+    "has_stdout": true,
+    "has_stderr": false,
+    "execution_time": "0:00:01",
+    "stdout_analysis": {
+      "test_summary_found": false,
+      "overall_result": null,
+      "test_counts": {},
+      "violations_detected": false
+    }
+  },
+  "test_report_analysis": {
+    "report_valid": true,
+    "overall_success": false,
+    "test_statistics": {
+      "total_tests": 8,
+      "passed": 2,
+      "failed": 6,
+      "categories_tested": 8
+    },
+    "failed_categories": [
+      {
+        "category": "core_tool_registry",
+        "error": null,
+        "details": {
+          "total_tools": 1,
+          "tool_names": [
+            "todo_manager"
+          ],
+          "missing_tools": [
+            "gmail_helper",
+            "simple_visual_creator",
+            "command_executor",
+            "sequential_thinking",
+            "llm_tool",
+            "settings_manager"
+          ],
+          "expected_tools": [
+            "gmail_helper",
+            "simple_visual_creator",
+            "command_executor",
+            "sequential_thinking",
+            "llm_tool",
+            "settings_manager"
+          ]
+        }
+      },
+      {
+        "category": "gmail_workflows",
+        "error": null,
+        "details": {}
+      },
+      {
+        "category": "visual_generation",
+        "error": null,
+        "details": {}
+      },
+      {
+        "category": "oauth2_authentication",
+        "error": null,
+        "details": {}
+      },
+      {
+        "category": "sequential_thinking",
+        "error": null,
+        "details": {}
+      },
+      {
+        "category": "memory_system",
+        "error": null,
+        "details": {}
+      }
+    ],
+    "critical_failures": [
+      {
+        "category": "core_tool_registry",
+        "error": null,
+        "details": {
+          "total_tools": 1,
+          "tool_names": [
+            "todo_manager"
+          ],
+          "missing_tools": [
+            "gmail_helper",
+            "simple_visual_creator",
+            "command_executor",
+            "sequential_thinking",
+            "llm_tool",
+            "settings_manager"
+          ],
+          "expected_tools": [
+            "gmail_helper",
+            "simple_visual_creator",
+            "command_executor",
+            "sequential_thinking",
+            "llm_tool",
+            "settings_manager"
+          ]
+        }
+      },
+      {
+        "category": "sequential_thinking",
+        "error": null,
+        "details": {}
+      }
+    ],
+    "claude_md_violations": []
+  },
+  "functional_validation": {
+    "skeptical_analysis_performed": true,
+    "suspicious_successes": [],
+    "functional_verification": {},
+    "recommendations": []
+  },
+  "failure_analysis": {
+    "total_failures": 6,
+    "failure_details": [
+      {
+        "type": "TEST_CATEGORY_FAILURE",
+        "category": "core_tool_registry",
+        "details": {
+          "category": "core_tool_registry",
+          "success": false,
+          "details": {
+            "total_tools": 1,
+            "tool_names": [
+              "todo_manager"
+            ],
+            "missing_tools": [
+              "gmail_helper",
+              "simple_visual_creator",
+              "command_executor",
+              "sequential_thinking",
+              "llm_tool",
+              "settings_manager"
+            ],
+            "expected_tools": [
+              "gmail_helper",
+              "simple_visual_creator",
+              "command_executor",
+              "sequential_thinking",
+              "llm_tool",
+              "settings_manager"
+            ]
+          },
+          "timestamp": "2025-08-07T15:45:42.852087"
+        },
+        "pattern_match": [
+          {
+            "pattern": "tool_not_found",
+            "root_cause": "Tool registration failure or import issues",
+            "recommended_actions": [
+              "Check MCP core tool loading",
+              "Verify tool imports",
+              "Review registry initialization"
+            ]
+          },
+          {
+            "pattern": "command_security",
+            "root_cause": "Command execution security compromise",
+            "recommended_actions": [
+              "Review command sanitization",
+              "Test injection prevention",
+              "Audit security filters"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TEST_CATEGORY_FAILURE",
+        "category": "gmail_workflows",
+        "details": {
+          "category": "gmail_workflows",
+          "success": false,
+          "details": {},
+          "timestamp": "2025-08-07T15:45:42.852173"
+        },
+        "pattern_match": [
+          {
+            "pattern": "workflow_orchestration",
+            "root_cause": "Workflow orchestration system malfunction",
+            "recommended_actions": [
+              "Check WorkflowOrchestrator initialization",
+              "Verify step result tracking",
+              "Test tool coordination"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TEST_CATEGORY_FAILURE",
+        "category": "visual_generation",
+        "details": {
+          "category": "visual_generation",
+          "success": false,
+          "details": {},
+          "timestamp": "2025-08-07T15:45:42.852237"
+        },
+        "pattern_match": []
+      },
+      {
+        "type": "TEST_CATEGORY_FAILURE",
+        "category": "oauth2_authentication",
+        "details": {
+          "category": "oauth2_authentication",
+          "success": false,
+          "details": {},
+          "timestamp": "2025-08-07T15:45:42.852272"
+        },
+        "pattern_match": [
+          {
+            "pattern": "oauth2_authentication",
+            "root_cause": "OAuth2 token expired or user mapping failure",
+            "recommended_actions": [
+              "Check OAuth2 token validity",
+              "Verify user mapping",
+              "Test credential storage"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TEST_CATEGORY_FAILURE",
+        "category": "sequential_thinking",
+        "details": {
+          "category": "sequential_thinking",
+          "success": false,
+          "details": {},
+          "timestamp": "2025-08-07T15:45:42.852298"
+        },
+        "pattern_match": []
+      },
+      {
+        "type": "TEST_CATEGORY_FAILURE",
+        "category": "memory_system",
+        "details": {
+          "category": "memory_system",
+          "success": false,
+          "details": {},
+          "timestamp": "2025-08-07T15:45:42.852320"
+        },
+        "pattern_match": [
+          {
+            "pattern": "memory_system",
+            "root_cause": "Graph memory or MCP communication failure",
+            "recommended_actions": [
+              "Test MCP Memory server connection",
+              "Check stdio protocol",
+              "Verify graph storage"
+            ]
+          }
+        ]
+      }
+    ],
+    "pattern_analysis": {
+      "most_common_patterns": [
+        [
+          "tool_not_found",
+          1
+        ],
+        [
+          "command_security",
+          1
+        ],
+        [
+          "workflow_orchestration",
+          1
+        ],
+        [
+          "oauth2_authentication",
+          1
+        ],
+        [
+          "memory_system",
+          1
+        ]
+      ],
+      "aggregated_actions": [
+        "Verify step result tracking",
+        "Check OAuth2 token validity",
+        "Verify graph storage",
+        "Check stdio protocol",
+        "Test injection prevention",
+        "Test MCP Memory server connection",
+        "Test tool coordination",
+        "Check WorkflowOrchestrator initialization",
+        "Test credential storage",
+        "Check MCP core tool loading",
+        "Audit security filters",
+        "Review command sanitization",
+        "Verify user mapping",
+        "Verify tool imports",
+        "Review registry initialization"
+      ],
+      "systemic_issues": []
+    }
+  },
+  "compliance_check": {
+    "violations_found": false,
+    "violation_details": [],
+    "severity_assessment": "NONE"
+  },
+  "root_cause_analysis": {
+    "primary_issues": [],
+    "systemic_problems": [],
+    "environment_issues": [],
+    "configuration_problems": []
+  },
+  "actionable_recommendations": [
+    {
+      "priority": "HIGH",
+      "action": "Implement runtime functional testing",
+      "description": "Current tests may not verify actual functionality",
+      "steps": [
+        "Create end-to-end workflow tests",
+        "Test actual Gmail API calls with real data",
+        "Verify visual generation produces actual images",
+        "Test OAuth2 token refresh with expired tokens"
+      ]
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "Enhance CLAUDE.md compliance monitoring",
+      "description": "Strengthen automated compliance checking",
+      "steps": [
+        "Implement git history analysis",
+        "Add file modification timestamp checking",
+        "Create security audit automation"
+      ]
+    }
+  ],
+  "overall_assessment": {
+    "health_score": 50,
+    "health_level": "FAIR",
+    "assessment_factors": [
+      "Test execution completely failed"
+    ],
+    "recommendation": "System has moderate issues. Plan remediation activities."
+  }
+}

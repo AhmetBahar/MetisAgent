@@ -1,0 +1,17 @@
+# CLAUDE.md Compliance Pre-commit Configuration
+repos:
+  - repo: local
+    hooks:
+      - id: claude-compliance-check
+        name: CLAUDE.md Compliance Check
+        entry: python tools/internal/compliance_integration_tool.py --staged
+        language: system
+        types: [python]
+        stages: [commit]
+        
+      - id: claude-compliance-full
+        name: CLAUDE.md Full Project Compliance
+        entry: python tools/internal/compliance_integration_tool.py --full
+        language: system
+        types: [python]
+        stages: [push]

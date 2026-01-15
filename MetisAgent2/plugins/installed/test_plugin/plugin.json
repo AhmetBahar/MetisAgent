@@ -1,0 +1,11 @@
+{
+  "name": "test_plugin",
+  "version": "1.0.0",
+  "description": "test_plugin plugin for MetisAgent2",
+  "author": "Plugin Developer",
+  "main_module": "test_plugin",
+  "dependencies": [],
+  "capabilities": [
+    "test_plugin_operations"
+  ]
+}

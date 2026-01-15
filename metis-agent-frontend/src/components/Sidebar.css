@@ -1,0 +1,66 @@
+.sidebar {
+  width: 250px;
+  background-color: #2d2d42; /* Koyu lacivert (logo yazı rengi) */
+  color: white;
+  padding: 20px 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.sidebar-logo img {
+  width: 120px;
+  height: auto;
+}
+
+.sidebar-menu {
+  list-style: none;
+}
+
+.sidebar-menu li {
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s;
+}
+
+.sidebar-menu li:hover {
+  background-color: #3d3d56; /* Biraz daha açık lacivert */
+}
+
+.sidebar-menu li.active {
+  background-color: #f47370; /* Mercan kırmızısı (logo daire rengi) */
+}
+
+.sidebar-menu a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.sidebar-menu svg {
+  margin-right: 10px;
+}
+
+.sidebar-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 15px;
+  background-color: #23232f; /* Daha koyu lacivert */
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-footer .user-info {
+  margin-left: 10px;
+}

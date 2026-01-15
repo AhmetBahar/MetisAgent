@@ -1,0 +1,141 @@
+{
+  "test_run_id": "test_20250807_154542",
+  "overall_success": false,
+  "execution_time": "0:00:00.117916",
+  "categories_tested": 8,
+  "total_tests": 8,
+  "passed": 2,
+  "failed": 6,
+  "detailed_results": [
+    {
+      "category": "core_tool_registry",
+      "success": false,
+      "details": {
+        "total_tools": 1,
+        "tool_names": [
+          "todo_manager"
+        ],
+        "missing_tools": [
+          "gmail_helper",
+          "simple_visual_creator",
+          "command_executor",
+          "sequential_thinking",
+          "llm_tool",
+          "settings_manager"
+        ],
+        "expected_tools": [
+          "gmail_helper",
+          "simple_visual_creator",
+          "command_executor",
+          "sequential_thinking",
+          "llm_tool",
+          "settings_manager"
+        ]
+      },
+      "timestamp": "2025-08-07T15:45:42.852087"
+    },
+    {
+      "category": "gmail_workflows",
+      "success": false,
+      "details": {},
+      "timestamp": "2025-08-07T15:45:42.852173"
+    },
+    {
+      "category": "visual_generation",
+      "success": false,
+      "details": {},
+      "timestamp": "2025-08-07T15:45:42.852237"
+    },
+    {
+      "category": "oauth2_authentication",
+      "success": false,
+      "details": {},
+      "timestamp": "2025-08-07T15:45:42.852272"
+    },
+    {
+      "category": "sequential_thinking",
+      "success": false,
+      "details": {},
+      "timestamp": "2025-08-07T15:45:42.852298"
+    },
+    {
+      "category": "memory_system",
+      "success": false,
+      "details": {},
+      "timestamp": "2025-08-07T15:45:42.852320"
+    },
+    {
+      "category": "plugin_system",
+      "success": true,
+      "details": {
+        "plugin_directory_exists": true,
+        "social_media_plugin_exists": true,
+        "plugin_path": "/home/ahmet/MetisAgent/MetisAgent2/plugins"
+      },
+      "timestamp": "2025-08-07T15:45:42.852372"
+    },
+    {
+      "category": "workflow_orchestration",
+      "success": true,
+      "details": {
+        "orchestrator_instantiated": true,
+        "step_results_attribute": true,
+        "orchestrator_class": "<class 'app.workflow_orchestrator.WorkflowOrchestrator'>"
+      },
+      "timestamp": "2025-08-07T15:45:42.855143"
+    }
+  ],
+  "claude_md_violations": [],
+  "critical_workflow_status": [
+    {
+      "name": "Gmail → Subject → Visual → Display",
+      "description": "4-step workflow from Gmail to visual generation",
+      "success_criteria": [
+        "Gmail emails retrieved successfully",
+        "Subject extraction working",
+        "Visual generation completes",
+        "Image display functioning"
+      ],
+      "expected_tools": [
+        "gmail_helper",
+        "llm_tool",
+        "simple_visual_creator"
+      ],
+      "graph_memory_ref": "WorkflowOrchestrator Deep Workflow Fix",
+      "test_status": "SIMULATED",
+      "last_tested": "2025-08-07T15:45:42.855478"
+    },
+    {
+      "name": "Simple Gmail Query",
+      "description": "Direct Gmail queries without workflow complexity",
+      "test_query": "gmaildeki son mail kimden geliyor?",
+      "expected_tool": "gmail_helper",
+      "expected_action": "list_emails",
+      "success_criteria": [
+        "Direct tool call",
+        "No command_executor fallback"
+      ],
+      "graph_memory_ref": "Tool Orchestration Problem Analysis",
+      "test_status": "SIMULATED",
+      "last_tested": "2025-08-07T15:45:42.855490"
+    },
+    {
+      "name": "OAuth2 User Mapping",
+      "description": "User mapping between backend and Google accounts",
+      "success_criteria": [
+        "Backend user ID mapping works",
+        "Google credentials properly injected",
+        "Token auto-refresh functional"
+      ],
+      "graph_memory_ref": "Gmail Tool User Mapping Fix",
+      "test_status": "SIMULATED",
+      "last_tested": "2025-08-07T15:45:42.855493"
+    }
+  ],
+  "recommendations": [
+    "🚨 IMMEDIATE: Fix failed test categories before deployment",
+    "🔄 SYSTEM ROLLBACK: Consider reverting recent changes",
+    "✅ AUTOMATION: Run this test suite before every deployment",
+    "📊 MONITORING: Set up continuous testing pipeline"
+  ]
+}

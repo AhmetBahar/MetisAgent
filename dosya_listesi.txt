@@ -1,0 +1,61 @@
+os_araci/
+│
+├── app.py                             # Flask uygulaması, blueprint ve koordinatör başlatıcı
+│
+├── mcp_core/                          # MCP çekirdek motor yapısı
+│   ├── __init__.py
+│   ├── registry.py                    # MCP Tool registry yönetimi
+│   ├── tool.py                        # MCPTool soyut sınıfı ve base API
+│   ├── monitoring/
+│   │   └── health_monitor.py          # Araçların sağlık durumu izleyicisi
+│   └── adapters/                      # Adaptör altyapısı
+│       ├── __init__.py
+│       ├── adapter_base.py            # Adaptör temel sınıfı
+│       ├── external_tool_adapter.py   # Dış sistemlere yönelik tool adaptörü
+│       └── remote_tool_proxy.py       # Uzak MCP araçlarına proxy bağlantısı
+│
+├── coordination/                      # Görev koordinasyonu
+│   ├── __init__.py
+│   ├── coordinator.py                 # Temel MCPCoordinator sınıfı
+│   └── coordinator_a2a.py             # A2A destekli koordinasyon mantığı
+│
+├── a2a_protocol/                      # Ajanlar arası mesajlaşma protokolü
+│   ├── __init__.py
+│   ├── message.py                     # Mesaj nesnesi (metadata, içerik, kaynak vb.)
+│   ├── registry.py                    # Ajanlar arası yönlendirme ve kayıt sistemi
+│   └── protocol.py                    # Protokol işleyicisi ve yönlendirme akışı
+│
+├── personas/                          # Persona mimarisi
+│   ├── __init__.py
+│   ├── persona_agent.py               # Persona ana sınıfı (temel davranışlar)
+│   ├── persona_factory.py             # JSON veya config ile persona üreticisi
+│   ├── task_executor_persona.py       # Görev çalıştırıcı örnek persona
+│   ├── social_media_persona.py        # Sosyal medya içerik üreten persona
+│   ├── code_assistant_persona.py      # Kod önerileri sunan persona
+│   ├── network_manager_persona.py     # Ağ görevleri için persona
+│   └── templates/                     # JSON tabanlı persona şablonları
+│       ├── task_executor.json
+│       ├── social_media_assistant.json
+│       ├── code_assistant.json
+│       └── network_manager.json
+│
+├── tools/                             # MCP araçları (Tool API’lerine bağlı)
+│   ├── __init__.py
+│   ├── file_manager.py                # Dosya ve klasör işlemleri
+│   ├── system_info.py                 # Sistem bilgisi raporlama
+│   ├── user_manager.py                # Kullanıcı yönetimi
+│   ├── network_manager.py             # Ağ konfigürasyonu ve IP yönetimi
+│   ├── scheduler.py                   # Zamanlanmış görevler
+│   ├── archive_manager.py             # Zip/untar vb. arşiv işlemleri
+│   ├── command_executor.py            # Komut çalıştırıcı (shell, in-memory output)
+│   └── llm_tool.py                    # LLM provider ve metin üretim aracı
+│
+├── a2a_api/                           # A2A API endpoint'leri (henüz blueprint değil)
+│   ├── __init__.py
+│   ├── routes.py                      # Flask route tanımları (GET/POST endpoint)
+│   └── handlers.py                    # A2A komutlarının işlenme mantığı
+│
+├── config/                            # Yapılandırma dosyaları
+│   └── a2a_config.json                # A2A protokol parametreleri ve kuralları
+│
+└── (test/, scripts/ vb. dizinler eklenebilir)

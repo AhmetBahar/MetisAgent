@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "tool_name": "rmms_workflow_tool",
+  "description": "RMMS Workflow Designer settings",
+  "cards": [
+    {
+      "card_id": "rmms_workflow_status",
+      "type": "status",
+      "category": "tools",
+      "title": "RMMS Workflow Tool",
+      "description": "Is akisi tasarimi ve otomasyon",
+      "icon": "🔄",
+      "order": 12,
+      "metrics": [
+        {
+          "name": "API Connection",
+          "value": "Connected",
+          "status": "healthy",
+          "icon": "🔗"
+        },
+        {
+          "name": "Workflows",
+          "value": "Ready",
+          "status": "healthy",
+          "icon": "📊"
+        },
+        {
+          "name": "Node Types",
+          "value": "8 Types",
+          "status": "healthy",
+          "icon": "🧩"
+        }
+      ],
+      "data_source": {
+        "capability": "tool_health",
+        "action": "get_health_status"
+      }
+    }
+  ]
+}

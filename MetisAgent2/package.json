@@ -1,0 +1,24 @@
+{
+  "name": "metisagent2",
+  "version": "2.0.0",
+  "description": "MetisAgent2 - Advanced MCP Tool-based Personal Assistant",
+  "main": "app.py",
+  "scripts": {
+    "install-mcp": "npm install @modelcontextprotocol/server-sequential-thinking",
+    "test-mcp": "node node_modules/@modelcontextprotocol/server-sequential-thinking/dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server-sequential-thinking": "^2025.7.1",
+    "@modelcontextprotocol/server-memory": "^2025.4.25"
+  },
+  "devDependencies": {},
+  "author": "MetisAgent Team",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "sequential-thinking",
+    "workflow",
+    "automation",
+    "personal-assistant"
+  ]
+}

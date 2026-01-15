@@ -1,0 +1,58 @@
+{
+  "tool_metadata": {
+    "name": "rmms_task_tool",
+    "description": "RMMS Task, Tag, and Variable management - create/manage tasks with scheduler/tag-based triggers, read tag values, manage variables (create/update/delete/history), view task execution history",
+    "version": "1.1.0",
+    "tool_type": "plugin",
+    "author": "MetisAgent3",
+    "capabilities": [
+      {"name": "list_tasks", "description": "List all tasks. Parameters: company_id (optional int), status (optional: pending/in_progress/completed/cancelled), priority (optional: low/medium/high/critical)", "capability_type": "read"},
+      {"name": "get_task", "description": "Get task details by name or ID. Parameters: task_name (required string), company_id (optional int, default 3)", "capability_type": "read"},
+      {"name": "create_task", "description": "Create new task. Parameters: name (required string), task_type (optional: 'code' or 'workflow', default 'code'), execution_location (optional: 'cloud' or 'local', default 'cloud'), execution_mode (optional: 'manual', 'scheduler', or 'tag-based', default 'manual'), interval (optional int seconds for scheduler mode, default 3600), specific_times (optional array of times like ['08:00','20:00'] for scheduler), tag_id (optional int for tag-based trigger), threshold (optional number for tag threshold), condition (optional: 'greaterThan', 'lessThan', 'equals', 'greaterThanOrEqual', 'lessThanOrEqual'), is_enabled (optional boolean, default true), company_id (optional int, default 3)", "capability_type": "write"},
+      {"name": "update_task", "description": "Update task properties. Parameters: task_name (required string), company_id (optional int, default 3), description (optional), task_type (optional), is_enabled (optional boolean), script_code (optional string)", "capability_type": "write"},
+      {"name": "delete_task", "description": "Delete a task. Parameters: task_name (required string), company_id (optional int, default 3)", "capability_type": "write"},
+      {"name": "start_task", "description": "Start task execution. Parameters: task_name (required string), company_id (optional int, default 3)", "capability_type": "write"},
+      {"name": "stop_task", "description": "Stop running task. Parameters: task_name (required string), company_id (optional int, default 3)", "capability_type": "write"},
+      {"name": "get_task_status", "description": "Get task execution status for company. Parameters: company_id (optional int, default 3)", "capability_type": "read"},
+      {"name": "get_statuses", "description": "Get available task statuses (pending, in_progress, completed, cancelled). No parameters required.", "capability_type": "read"},
+      {"name": "get_priorities", "description": "Get available task priorities (low, medium, high, critical). No parameters required.", "capability_type": "read"},
+      {"name": "get_categories", "description": "Get available task categories (maintenance, inspection, repair, etc.). No parameters required.", "capability_type": "read"},
+      {"name": "get_users", "description": "Get users that can be assigned to tasks. Parameters: company_id (optional int)", "capability_type": "read"},
+
+      {"name": "list_tags", "description": "List tags for a company. Parameters: company_id (optional int, default 3), limit (optional int, default 50), search (optional string to filter by tag name)", "capability_type": "read"},
+      {"name": "get_tag", "description": "Get tag details by ID. Parameters: tag_id (required int)", "capability_type": "read"},
+      {"name": "get_tag_value", "description": "Get current value of a tag. Parameters: tag_id (required int)", "capability_type": "read"},
+      {"name": "get_tag_values", "description": "Get current values for multiple tags. Parameters: tag_ids (required, comma-separated list or array of tag IDs)", "capability_type": "read"},
+
+      {"name": "list_variables", "description": "List all variables for a company. Parameters: company_id (optional int, default 3)", "capability_type": "read"},
+      {"name": "get_variable", "description": "Get variable details by ID. Parameters: var_id (required int), company_id (optional int, default 3)", "capability_type": "read"},
+      {"name": "read_var_value", "description": "Read variable's current value (alias for get_variable). Parameters: var_id (required int), company_id (optional int, default 3)", "capability_type": "read"},
+      {"name": "create_variable", "description": "Create a new variable. Parameters: var_name (required string), type (optional int, default 0=numeric), unit (optional string), formula (optional string), value (optional string), company_id (optional int, default 3)", "capability_type": "write"},
+      {"name": "update_variable", "description": "Update an existing variable. Parameters: var_id (required int), var_name (optional), type (optional), unit (optional), formula (optional), value (optional), company_id (optional int, default 3)", "capability_type": "write"},
+      {"name": "delete_variable", "description": "Delete a variable. Parameters: var_id (required int), company_id (optional int, default 3)", "capability_type": "write"},
+      {"name": "get_variable_history", "description": "Get variable value history. Parameters: var_id (required int), company_id (optional int, default 3), start_date (optional ISO date), end_date (optional ISO date)", "capability_type": "read"},
+
+      {"name": "get_task_execution_history", "description": "Get task execution history. Parameters: task_name (optional string to filter by task), company_id (optional int, default 3), start_date (optional ISO date), end_date (optional ISO date), status (optional: completed/failed/running), limit (optional int, default 50). Returns execution history including last run time, duration, status.", "capability_type": "read"},
+      {"name": "get_task_execution_logs", "description": "Get detailed logs for a specific task execution. Parameters: task_id (required int), execution_id (required int), company_id (optional int, default 3)", "capability_type": "read"}
+    ],
+    "dependencies": ["httpx"],
+    "tags": ["rmms", "task", "management", "workflow", "assignment", "industrial", "tags", "variables"]
+  },
+
+  "tool_configuration": {
+    "tool_name": "rmms_task_tool",
+    "enabled": true,
+    "config": {
+      "plugin_type": "python_module",
+      "module_path": "plugins.rmms_task_tool.rmms_task_tool",
+      "class_name": "RMMSTaskTool",
+      "api_base_url": "https://rmms-metis-engine.azurewebsites.net/api/Task",
+      "timeout": 30
+    },
+    "user_permissions": [],
+    "rate_limits": {
+      "requests_per_minute": 60,
+      "requests_per_hour": 500
+    }
+  }
+}

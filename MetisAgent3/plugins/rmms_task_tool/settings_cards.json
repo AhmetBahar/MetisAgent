@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "tool_name": "rmms_task_tool",
+  "description": "RMMS Task Management settings",
+  "cards": [
+    {
+      "card_id": "rmms_task_status",
+      "type": "status",
+      "category": "tools",
+      "title": "RMMS Task Tool",
+      "description": "Gorev yonetimi ve Python task calistirma",
+      "icon": "📋",
+      "order": 11,
+      "metrics": [
+        {
+          "name": "API Connection",
+          "value": "Connected",
+          "status": "healthy",
+          "icon": "🔗"
+        },
+        {
+          "name": "Task Service",
+          "value": "Running",
+          "status": "healthy",
+          "icon": "⚡"
+        },
+        {
+          "name": "Python Executor",
+          "value": "Ready",
+          "status": "healthy",
+          "icon": "🐍"
+        }
+      ],
+      "data_source": {
+        "capability": "tool_health",
+        "action": "get_health_status"
+      }
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "version": "1.0",
+  "tool_name": "google_tool",
+  "description": "Google Workspace integration settings",
+  "cards": [
+    {
+      "card_id": "google_oauth2",
+      "type": "action",
+      "category": "authentication",
+      "title": "Google OAuth2",
+      "description": "Gmail, Drive, Calendar API erişimi için OAuth2 yetkilendirmesi",
+      "icon": "🔑",
+      "order": 1,
+      "status": "not_authorized",
+      "actions": [
+        {
+          "id": "authorize",
+          "type": "primary",
+          "label": "Google ile Yetkilendir",
+          "tool_call": {
+            "capability": "oauth2_management",
+            "action": "authorize"
+          }
+        },
+        {
+          "id": "revoke",
+          "type": "danger",
+          "label": "Yetkilendirmeyi İptal Et",
+          "condition": "status === 'authorized'",
+          "confirm_message": "Google OAuth2 yetkilendirmesini iptal etmek istediğinize emin misiniz?",
+          "tool_call": {
+            "capability": "oauth2_management",
+            "action": "revoke"
+          }
+        }
+      ],
+      "status_display": {
+        "authorized": {
+          "icon": "✅",
+          "message": "Yetkilendirildi",
+          "color": "green"
+        },
+        "not_authorized": {
+          "icon": "❌",
+          "message": "Yetkilendirilmedi",
+          "color": "red"
+        }
+      },
+      "data_source": {
+        "capability": "oauth2_management",
+        "action": "check_status"
+      }
+    },
+    {
+      "card_id": "google_user_mapping",
+      "type": "value",
+      "category": "authentication",
+      "title": "Google Hesap Eşleme",
+      "description": "MetisAgent hesabınızı Google hesabınızla eşleştirin",
+      "icon": "🔗",
+      "order": 2,
+      "form_schema": {
+        "fields": [
+          {
+            "name": "google_email",
+            "type": "email",
+            "label": "Google Email",
+            "required": true,
+            "placeholder": "user@gmail.com",
+            "validation": {
+              "pattern": "@gmail\\.com$"
+            }
+          },
+          {
+            "name": "google_name",
+            "type": "text",
+            "label": "Google İsim",
+            "required": false,
+            "placeholder": "John Doe"
+          }
+        ]
+      },
+      "save_action": {
+        "capability": "oauth2_management",
+        "action": "set_user_mapping"
+      },
+      "data_source": {
+        "capability": "oauth2_management",
+        "action": "get_user_mapping"
+      }
+    },
+    {
+      "card_id": "google_tool_status",
+      "type": "status",
+      "category": "tools",
+      "title": "Google Tool Status",
+      "description": "Google Tool bağlantı durumu ve sağlık bilgileri",
+      "icon": "📊",
+      "order": 3,
+      "metrics": [
+        {
+          "name": "OAuth2 Status",
+          "value": "Not Connected",
+          "status": "error",
+          "icon": "🔐"
+        },
+        {
+          "name": "Gmail API",
+          "value": "Ready",
+          "status": "healthy",
+          "icon": "📧"
+        },
+        {
+          "name": "Calendar API", 
+          "value": "Ready",
+          "status": "healthy",
+          "icon": "📅"
+        },
+        {
+          "name": "Drive API",
+          "value": "Ready", 
+          "status": "healthy",
+          "icon": "💾"
+        }
+      ],
+      "data_source": {
+        "capability": "tool_health",
+        "action": "get_health_status"
+      }
+    }
+  ]
+}

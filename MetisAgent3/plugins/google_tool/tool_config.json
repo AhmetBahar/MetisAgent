@@ -1,0 +1,175 @@
+{
+  "tool_metadata": {
+    "name": "google_tool",
+    "description": "Complete Google Workspace integration with Gmail, Calendar, Drive operations and event-driven automation",
+    "version": "1.0.0",
+    "tool_type": "plugin",
+    "author": "MetisAgent3",
+    "capabilities": [
+      {
+        "name": "oauth2_management",
+        "description": "Google OAuth2 authentication and token management",
+        "capability_type": "execute",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "action": {"type": "string", "enum": ["authorize", "check_status", "revoke", "store_token", "set_user_mapping", "get_user_mapping", "delete_user_mapping"]},
+            "user_id": {"type": "string"}
+          },
+          "required": ["action"]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "message": {"type": "string"},
+            "auth_url": {"type": "string"},
+            "status": {"type": "string"}
+          }
+        }
+      },
+      {
+        "name": "gmail_operations",
+        "description": "Gmail email operations - send, read, list",
+        "capability_type": "read",
+        "input_schema": {
+          "type": "object", 
+          "properties": {
+            "action": {"type": "string", "enum": ["list", "read", "send", "send_with_attachment", "get_positional_email"]},
+            "user_id": {"type": "string"},
+            "params": {"type": "object"}
+          },
+          "required": ["action"]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"type": "object"},
+            "message": {"type": "string"}
+          }
+        }
+      },
+      {
+        "name": "calendar_operations", 
+        "description": "Google Calendar event operations",
+        "capability_type": "write",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "action": {"type": "string", "enum": ["list_events", "create_event", "update_event", "delete_event", "get_event"]},
+            "user_id": {"type": "string"},
+            "params": {"type": "object"}
+          },
+          "required": ["action"]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"type": "object"},
+            "message": {"type": "string"}
+          }
+        }
+      },
+      {
+        "name": "drive_operations",
+        "description": "Google Drive file operations",
+        "capability_type": "transform",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "action": {"type": "string", "enum": ["list_files", "upload_file", "download_file", "delete_file", "share_file", "get_file_info"]},
+            "user_id": {"type": "string"},
+            "params": {"type": "object"}
+          },
+          "required": ["action"]
+        },
+        "output_schema": {
+          "type": "object", 
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"type": "object"},
+            "message": {"type": "string"}
+          }
+        }
+      },
+      {
+        "name": "event_management",
+        "description": "Event-driven workflow automation triggers",
+        "capability_type": "execute",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "action": {"type": "string", "enum": ["create_email_trigger", "create_calendar_trigger", "list_triggers", "start_monitoring", "stop_monitoring"]},
+            "user_id": {"type": "string"},
+            "params": {"type": "object"}
+          },
+          "required": ["action"]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "data": {"type": "object"},
+            "message": {"type": "string"}
+          }
+        }
+      },
+      {
+        "name": "tool_health",
+        "description": "Tool health status and metrics monitoring",
+        "capability_type": "read",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "action": {"type": "string", "enum": ["get_health_status"]},
+            "user_id": {"type": "string"}
+          },
+          "required": ["action"]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "success": {"type": "boolean"},
+            "metrics": {"type": "array"},
+            "overall_status": {"type": "string"},
+            "message": {"type": "string"}
+          }
+        }
+      }
+    ],
+    "dependencies": [
+      "google-auth>=2.0.0",
+      "google-auth-oauthlib>=1.0.0", 
+      "google-auth-httplib2>=0.2.0",
+      "google-api-python-client>=2.0.0",
+      "requests>=2.25.0"
+    ],
+    "tags": ["google", "gmail", "calendar", "drive", "oauth2", "email", "productivity", "automation", "events"]
+  },
+  
+  "tool_configuration": {
+    "tool_name": "google_tool",
+    "enabled": true,
+    "config": {
+      "plugin_type": "python_module",
+      "module_path": "plugins.google_tool.google_tool",
+      "class_name": "GoogleTool",
+      "client_id": "${GOOGLE_CLIENT_ID}",
+      "client_secret": "${GOOGLE_CLIENT_SECRET}",
+      "redirect_uri": "http://localhost:5001/oauth2/google/callback",
+      "scopes": [
+        "https://www.googleapis.com/auth/gmail.readonly",
+        "https://www.googleapis.com/auth/gmail.send", 
+        "https://www.googleapis.com/auth/calendar",
+        "https://www.googleapis.com/auth/drive"
+      ]
+    },
+    "user_permissions": [],
+    "rate_limits": {
+      "requests_per_minute": 100,
+      "requests_per_hour": 1000
+    }
+  }
+}

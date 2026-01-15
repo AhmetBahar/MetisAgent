@@ -1,0 +1,8 @@
+{
+  "class_name": "SocialMediaWorkflowTool",
+  "module_name": "social_media_workflow_tool",
+  "version": "1.0.0",
+  "description": "LLM-driven social media campaign workflow management with hybrid graph memory",
+  "author": "MetisAgent2 Team",
+  "dependencies": ["graph_memory", "llm_tool", "simple_visual_creator"]
+}

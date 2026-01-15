@@ -1,0 +1,32 @@
+{
+  "installed_tools": {
+    "instagram_tool": {
+      "path": "/home/ahmet/MetisAgent/MetisAgent2/dynamic_tools/instagram_tool",
+      "main_file": "instagram_tool.py",
+      "enabled": true,
+      "installed_from": "/home/ahmet/MetisAgent/tools",
+      "version": "1.0.0"
+    },
+    "social_media_workflow_tool": {
+      "path": "/home/ahmet/MetisAgent/MetisAgent2/dynamic_tools/social_media_workflow_tool",
+      "main_file": "social_media_workflow_tool.py",
+      "enabled": true,
+      "installed_from": "/home/ahmet/MetisAgent/MetisAgent2/dynamic_tools",
+      "version": "1.0.0",
+      "dependencies": ["graph_memory", "llm_tool", "simple_visual_creator"],
+      "description": "LLM-driven social media campaign workflow management with hybrid graph memory"
+    }
+  },
+  "tool_sources": {
+    "github": "https://api.github.com/search/repositories?q=mcp+tool+python",
+    "pypi": "https://pypi.org/search/?q=mcp+tool"
+  },
+  "last_updated": "2025-07-31T23:50:00Z",
+  "auto_load_settings": {
+    "approved_tools": [
+      "website_fetcher_tool",
+      "instagram_tool",
+      "social_media_workflow_tool"
+    ]
+  }
+}

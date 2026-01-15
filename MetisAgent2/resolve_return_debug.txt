@@ -1,0 +1,6 @@
+_resolve_step_params RETURNING:
+Type: <class 'dict'>
+Value: {'message_id': 'to_be_extracted'}
+Has workflow_display_method: False
+workflow_display_method value: None
+ERROR: This should not happen for display steps!

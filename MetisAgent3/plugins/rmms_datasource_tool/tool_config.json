@@ -1,0 +1,53 @@
+{
+  "tool_metadata": {
+    "name": "rmms_datasource_tool",
+    "description": "RMMS Data Source management - manage PLCs, Channels, Tags, and Variables for industrial automation",
+    "version": "2.2.0",
+    "tool_type": "plugin",
+    "author": "MetisAgent3",
+    "capabilities": [
+      {"name": "list_plcs", "description": "List all PLCs for a company. Parameters: company_id (optional, default 3)", "capability_type": "read"},
+      {"name": "list_channels", "description": "List all channels for a company. Parameters: company_id (optional, default 3)", "capability_type": "read"},
+      {"name": "create_channel", "description": "Create a new channel. Parameters: channel_name, plc_id, start, length, type, db_no, interval, opc_type, company_id", "capability_type": "write"},
+      {"name": "update_channel", "description": "Update a channel. Parameters: channel_id (required), channel_name, plc_id, start, length, type, db_no, interval, opc_type, company_id", "capability_type": "write"},
+      {"name": "delete_channel", "description": "Delete a channel. Parameters: channel_id (required), company_id", "capability_type": "write"},
+      {"name": "auto_generate_channels", "description": "Auto-generate channels based on PLC grouping. Parameters: company_id, tags_per_channel (default 50)", "capability_type": "write"},
+      {"name": "get_channel_stats", "description": "Get channel statistics. Parameters: company_id", "capability_type": "read"},
+      {"name": "clear_channels", "description": "Clear all auto-generated channels. Parameters: company_id", "capability_type": "write"},
+      {"name": "list_tags", "description": "List all tags for a company. Parameters: company_id (optional, default 3)", "capability_type": "read"},
+      {"name": "create_tag", "description": "Create a new tag. Parameters: tag_name, major_address, minor_address, db_no, type, data_type, plc_id, channel_id, module_id, formula, unit, alarm, alarm_condition, company_id", "capability_type": "write"},
+      {"name": "update_tag", "description": "Update a tag. Parameters: tag_id (required), tag_name, major_address, minor_address, db_no, type, data_type, plc_id, channel_id, module_id, formula, unit, alarm, alarm_condition, company_id", "capability_type": "write"},
+      {"name": "delete_tag", "description": "Delete a tag. Parameters: tag_id (required), company_id", "capability_type": "write"},
+      {"name": "list_vars", "description": "List all variables for a company. Parameters: company_id (optional, default 3)", "capability_type": "read"},
+      {"name": "get_variables", "description": "Get combined tags and variables. Parameters: company_id", "capability_type": "read"},
+      {"name": "get_datasource_types", "description": "Get available data source types (plc, channel, tag, variable)", "capability_type": "read"},
+      {"name": "read_tag_value", "description": "Read a single tag's current value. Parameters: tag_id (required)", "capability_type": "read"},
+      {"name": "read_tag_values", "description": "Read multiple tags' current values. Parameters: tag_ids (required, list of tag IDs or comma-separated string)", "capability_type": "read"},
+      {"name": "write_tag_value", "description": "Write a single tag value. Parameters: tag_id (required), value (required), tag_name (optional)", "capability_type": "write"},
+      {"name": "write_tag_values", "description": "Write multiple tag values. Parameters: tags (required, list of {tag_id, value, tag_name} objects)", "capability_type": "write"},
+      {"name": "read_var_value", "description": "Read a single variable's current value. Parameters: var_id (required), company_id (optional, default 3)", "capability_type": "read"},
+      {"name": "read_var_values", "description": "Read multiple variables' current values. Parameters: var_ids (required, list of var IDs), company_id (optional)", "capability_type": "read"}
+    ],
+    "dependencies": ["httpx"],
+    "tags": ["rmms", "datasource", "plc", "channel", "tag", "variable", "industrial", "scada"]
+  },
+
+  "tool_configuration": {
+    "tool_name": "rmms_datasource_tool",
+    "enabled": true,
+    "config": {
+      "plugin_type": "python_module",
+      "module_path": "plugins.rmms_datasource_tool.rmms_datasource_tool",
+      "class_name": "RMMSDataSourceTool",
+      "api_base_url": "https://app-rmmsapi.azurewebsites.net/api",
+      "metis_api_url": "https://rmms-metis-engine.azurewebsites.net/api",
+      "tag_api_url": "https://app-rmmstagapi.azurewebsites.net/api",
+      "timeout": 30
+    },
+    "user_permissions": [],
+    "rate_limits": {
+      "requests_per_minute": 60,
+      "requests_per_hour": 500
+    }
+  }
+}

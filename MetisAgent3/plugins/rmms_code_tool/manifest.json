@@ -1,0 +1,163 @@
+{
+  "name": "rmms_code_tool",
+  "display_name": "RMMS Code Editor",
+  "description": "AI-powered code editor for RMMS - create and manage Python/C# codes for automation and calculations",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.rmms_code_tool.rmms_code_tool",
+  "class_name": "RMMSCodeTool",
+
+  "dependencies": [
+    "httpx"
+  ],
+
+  "capabilities": [
+    {
+      "name": "list_codes",
+      "description": "List all codes, optionally filtered by company or language",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer"},
+          "language": {"type": "string", "enum": ["python", "csharp"]}
+        }
+      }
+    },
+    {
+      "name": "get_code",
+      "description": "Get a specific code by ID",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "code_id": {"type": "integer"}
+        },
+        "required": ["code_id"]
+      }
+    },
+    {
+      "name": "create_code",
+      "description": "Create a new Python or C# code",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string", "description": "Code name"},
+          "language": {"type": "string", "enum": ["python", "csharp"], "default": "python"},
+          "code": {"type": "string", "description": "The code content"},
+          "description": {"type": "string"},
+          "company_id": {"type": "integer"}
+        },
+        "required": ["name", "code"]
+      },
+      "examples": [
+        {
+          "input": {
+            "name": "Temperature Converter",
+            "language": "python",
+            "code": "def execute(context):\n    celsius = float(context.get('temperature', 0))\n    fahrenheit = (celsius * 9/5) + 32\n    return {'success': True, 'fahrenheit': fahrenheit}",
+            "description": "Converts Celsius to Fahrenheit"
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_code",
+      "description": "Update an existing code",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "code_id": {"type": "integer"},
+          "name": {"type": "string"},
+          "code": {"type": "string"},
+          "description": {"type": "string"},
+          "is_active": {"type": "boolean"}
+        },
+        "required": ["code_id"]
+      }
+    },
+    {
+      "name": "delete_code",
+      "description": "Delete a code",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "code_id": {"type": "integer"}
+        },
+        "required": ["code_id"]
+      }
+    },
+    {
+      "name": "validate_code",
+      "description": "Validate code syntax without saving",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "code": {"type": "string"},
+          "language": {"type": "string", "enum": ["python", "csharp"], "default": "python"}
+        },
+        "required": ["code"]
+      }
+    },
+    {
+      "name": "execute_code",
+      "description": "Execute a code for testing",
+      "capability_type": "execute",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "code_id": {"type": "integer"},
+          "context": {"type": "object", "description": "Input parameters and tag values"}
+        },
+        "required": ["code_id"]
+      }
+    },
+    {
+      "name": "get_template",
+      "description": "Get code template for a language",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "language": {"type": "string", "enum": ["python", "csharp"], "default": "python"},
+          "author": {"type": "string"},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "get_examples",
+      "description": "Get example codes for a language",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "language": {"type": "string", "enum": ["python", "csharp"], "default": "python"}
+        }
+      }
+    },
+    {
+      "name": "get_languages",
+      "description": "Get supported programming languages",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://app-rmmsapi.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["rmms", "code", "python", "csharp", "editor", "automation", "industrial"]
+}

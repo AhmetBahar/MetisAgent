@@ -1,0 +1,232 @@
+{
+  "test_run_id": "test_20250807_160019",
+  "overall_success": true,
+  "execution_time": "0:00:01.292394",
+  "categories_tested": 8,
+  "total_tests": 8,
+  "passed": 8,
+  "failed": 0,
+  "detailed_results": [
+    {
+      "category": "core_tool_registry",
+      "success": true,
+      "details": {
+        "total_tools": 16,
+        "tool_names": [
+          "todo_manager",
+          "graph_memory",
+          "llm_tool",
+          "sequential_thinking",
+          "settings_manager",
+          "todo_manager",
+          "command_executor",
+          "google_oauth2_manager",
+          "user_clarification",
+          "gmail_helper",
+          "google_calendar",
+          "google_drive",
+          "selenium_browser",
+          "simple_visual_creator",
+          "social_media_workflow",
+          "instagram_tool"
+        ],
+        "missing_tools": [],
+        "expected_tools": [
+          "gmail_helper",
+          "simple_visual_creator",
+          "command_executor",
+          "sequential_thinking",
+          "llm_tool",
+          "settings_manager"
+        ]
+      },
+      "timestamp": "2025-08-07T16:00:20.550445"
+    },
+    {
+      "category": "gmail_workflows",
+      "success": true,
+      "details": {
+        "gmail_tool_exists": true,
+        "available_actions": [
+          "get_latest_email_subject",
+          "get_email_details",
+          "list_emails",
+          "send_email",
+          "send_email_with_attachment"
+        ],
+        "missing_actions": [],
+        "sequential_thinking_available": true
+      },
+      "timestamp": "2025-08-07T16:00:20.681871"
+    },
+    {
+      "category": "visual_generation",
+      "success": true,
+      "details": {
+        "available_actions": [
+          "generate_image_with_openai",
+          "create_image_with_openai",
+          "generate_image_with_huggingface",
+          "generate_image",
+          "create_image",
+          "generate_social_media_image",
+          "generate_variations",
+          "load_and_display_image",
+          "check_provider_status",
+          "get_latest_image",
+          "list_available_images",
+          "select_existing_image",
+          "search_images_by_name",
+          "get_image_info"
+        ],
+        "missing_actions": [],
+        "auto_display_implemented": false
+      },
+      "timestamp": "2025-08-07T16:00:20.809039"
+    },
+    {
+      "category": "oauth2_authentication",
+      "success": true,
+      "details": {
+        "oauth_tool_exists": true,
+        "settings_tool_exists": true,
+        "oauth_actions": [
+          "gmail_list_messages",
+          "gmail_get_message",
+          "gmail_send_message",
+          "gmail_send_message_with_attachment",
+          "get_auth_url",
+          "exchange_code",
+          "get_oauth2_status",
+          "refresh_token",
+          "revoke_token",
+          "get_user_token",
+          "list_authorized_users",
+          "calendar_list_calendars",
+          "calendar_list_events",
+          "calendar_create_event",
+          "calendar_update_event",
+          "calendar_delete_event"
+        ],
+        "token_refresh_capability": true
+      },
+      "timestamp": "2025-08-07T16:00:20.809104"
+    },
+    {
+      "category": "sequential_thinking",
+      "success": true,
+      "details": {
+        "available_actions": [
+          "plan_workflow",
+          "break_down_task",
+          "evaluate_complexity",
+          "match_tools_intelligently",
+          "optimize_sequence",
+          "analyze_dependencies",
+          "plan_context_aware_workflow",
+          "discover_tool_capabilities"
+        ],
+        "missing_actions": [],
+        "tool_mapping_functional": true
+      },
+      "timestamp": "2025-08-07T16:00:20.809182"
+    },
+    {
+      "category": "memory_system",
+      "success": true,
+      "details": {
+        "memory_tool_exists": true,
+        "available_actions": [
+          "create_entities",
+          "create_relations",
+          "add_observations",
+          "search_nodes",
+          "read_graph",
+          "open_nodes",
+          "delete_entities",
+          "delete_relations",
+          "delete_observations",
+          "store_tool_capability",
+          "get_user_tools",
+          "log_tool_operation",
+          "generate_tool_prompt",
+          "get_latest_operation",
+          "get_context_operation"
+        ],
+        "missing_actions": []
+      },
+      "timestamp": "2025-08-07T16:00:20.809233"
+    },
+    {
+      "category": "plugin_system",
+      "success": true,
+      "details": {
+        "plugin_directory_exists": true,
+        "social_media_plugin_exists": true,
+        "plugin_path": "/home/ahmet/MetisAgent/MetisAgent2/plugins"
+      },
+      "timestamp": "2025-08-07T16:00:20.809295"
+    },
+    {
+      "category": "workflow_orchestration",
+      "success": true,
+      "details": {
+        "orchestrator_instantiated": true,
+        "step_results_attribute": true,
+        "orchestrator_class": "<class 'app.workflow_orchestrator.WorkflowOrchestrator'>"
+      },
+      "timestamp": "2025-08-07T16:00:20.809386"
+    }
+  ],
+  "claude_md_violations": [],
+  "critical_workflow_status": [
+    {
+      "name": "Gmail → Subject → Visual → Display",
+      "description": "4-step workflow from Gmail to visual generation",
+      "success_criteria": [
+        "Gmail emails retrieved successfully",
+        "Subject extraction working",
+        "Visual generation completes",
+        "Image display functioning"
+      ],
+      "expected_tools": [
+        "gmail_helper",
+        "llm_tool",
+        "simple_visual_creator"
+      ],
+      "graph_memory_ref": "WorkflowOrchestrator Deep Workflow Fix",
+      "test_status": "SIMULATED",
+      "last_tested": "2025-08-07T16:00:20.809421"
+    },
+    {
+      "name": "Simple Gmail Query",
+      "description": "Direct Gmail queries without workflow complexity",
+      "test_query": "gmaildeki son mail kimden geliyor?",
+      "expected_tool": "gmail_helper",
+      "expected_action": "list_emails",
+      "success_criteria": [
+        "Direct tool call",
+        "No command_executor fallback"
+      ],
+      "graph_memory_ref": "Tool Orchestration Problem Analysis",
+      "test_status": "SIMULATED",
+      "last_tested": "2025-08-07T16:00:20.809424"
+    },
+    {
+      "name": "OAuth2 User Mapping",
+      "description": "User mapping between backend and Google accounts",
+      "success_criteria": [
+        "Backend user ID mapping works",
+        "Google credentials properly injected",
+        "Token auto-refresh functional"
+      ],
+      "graph_memory_ref": "Gmail Tool User Mapping Fix",
+      "test_status": "SIMULATED",
+      "last_tested": "2025-08-07T16:00:20.809426"
+    }
+  ],
+  "recommendations": [
+    "✅ AUTOMATION: Run this test suite before every deployment",
+    "📊 MONITORING: Set up continuous testing pipeline"
+  ]
+}

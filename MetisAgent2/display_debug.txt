@@ -1,0 +1,5 @@
+IMAGE_DATA = {'image_path': '/home/ahmet/MetisAgent/MetisAgent2/generated_images/20250729_195036_bir_menekşe_görseli_üret_ve_gö.png', 'saved_path': '/home/ahmet/MetisAgent/MetisAgent2/generated_images/20250729_195036_bir_menekşe_görseli_üret_ve_gö.png', 'base64_image': '[BASE64_IMAGE_DATA_REMOVED_1926548_CHARS]', 'image_url': None, 'local_filename': '20250729_195036_bir_menekşe_görseli_üret_ve_gö.png', 'prompt': 'bir menekşe görseli üret ve göster', 'display_ready': True}
+TYPE = <class 'dict'>
+BOOL = True
+PREV STEPS = 1
+STEP step_1: True - ['prompt', 'generation_type', 'successful_generations', 'failed_generations', 'total_attempts', 'success_count', 'success_rate', 'providers_used', 'generation_summary', 'created_at']

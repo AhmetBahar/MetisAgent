@@ -1,0 +1,35 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  color: #2d2d42; /* Koyu lacivert (logo yazı rengi) */
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.header-button {
+  background-color: #f47370; /* Mercan kırmızısı (logo daire rengi) */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.header-button:hover {
+  background-color: #e05e5b; /* Daha koyu mercan tonu */
+}

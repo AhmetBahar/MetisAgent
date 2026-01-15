@@ -1,0 +1,27 @@
+/* src/pages/Login.css */
+.login-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.login-card {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.login-logo {
+  max-width: 100px;
+  height: auto;
+}
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.auth-tab-button {
+  flex: 1;
+  border-radius: 4px;
+  padding: 10px;
+}

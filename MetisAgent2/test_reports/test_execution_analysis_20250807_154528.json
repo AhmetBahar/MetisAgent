@@ -1,0 +1,93 @@
+{
+  "analysis_timestamp": "2025-08-07T15:45:28.013877",
+  "execution_analysis": {
+    "execution_successful": false,
+    "return_code": 1,
+    "has_stdout": false,
+    "has_stderr": true,
+    "execution_time": "0:00:00.503215",
+    "stderr_issues": []
+  },
+  "test_report_analysis": null,
+  "functional_validation": {
+    "skeptical_analysis_performed": true,
+    "suspicious_successes": [],
+    "functional_verification": {},
+    "recommendations": [],
+    "error": "No test report available for functional validation"
+  },
+  "failure_analysis": {
+    "total_failures": 1,
+    "failure_details": [
+      {
+        "type": "EXECUTION_FAILURE",
+        "details": {
+          "command": "conda activate MetisAgent && cd /home/ahmet/MetisAgent/MetisAgent2 && python automated_test_agent.py",
+          "return_code": 1,
+          "stdout": "",
+          "stderr": "\nCondaError: Run 'conda init' before 'conda activate'\n\n",
+          "execution_time": "0:00:00.503215",
+          "success": false
+        },
+        "pattern_match": []
+      }
+    ],
+    "pattern_analysis": {
+      "most_common_patterns": [],
+      "aggregated_actions": [],
+      "systemic_issues": []
+    }
+  },
+  "compliance_check": {
+    "violations_found": false,
+    "violation_details": [],
+    "severity_assessment": "NONE"
+  },
+  "root_cause_analysis": {
+    "primary_issues": [],
+    "systemic_problems": [],
+    "environment_issues": [],
+    "configuration_problems": []
+  },
+  "actionable_recommendations": [
+    {
+      "priority": "CRITICAL",
+      "action": "Fix test execution environment",
+      "description": "Automated test agent failed to execute properly",
+      "steps": [
+        "Verify conda environment activation",
+        "Check Python path and imports",
+        "Review execution permissions"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "action": "Implement runtime functional testing",
+      "description": "Current tests may not verify actual functionality",
+      "steps": [
+        "Create end-to-end workflow tests",
+        "Test actual Gmail API calls with real data",
+        "Verify visual generation produces actual images",
+        "Test OAuth2 token refresh with expired tokens"
+      ]
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "Enhance CLAUDE.md compliance monitoring",
+      "description": "Strengthen automated compliance checking",
+      "steps": [
+        "Implement git history analysis",
+        "Add file modification timestamp checking",
+        "Create security audit automation"
+      ]
+    }
+  ],
+  "overall_assessment": {
+    "health_score": 50,
+    "health_level": "FAIR",
+    "assessment_factors": [
+      "Test execution completely failed"
+    ],
+    "recommendation": "System has moderate issues. Plan remediation activities."
+  }
+}

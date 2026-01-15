@@ -1,0 +1,208 @@
+{
+  "tool_metadata": {
+    "name": "rmms_workflow_tool",
+    "description": "RMMS Workflow management - list, get, create, update, delete and execute industrial automation workflows. Workflows consist of nodes connected by edges. IMPORTANT: company_id is REQUIRED for all operations.",
+    "version": "2.0.0",
+    "tool_type": "plugin",
+    "author": "MetisAgent3",
+    "capabilities": [
+      {"name": "list_workflows", "description": "List all workflows. Parameters: company_id (REQUIRED int)", "capability_type": "read"},
+      {"name": "get_workflow", "description": "Get workflow definition including nodes and edges. Parameters: workflow_name (REQUIRED string), company_id (REQUIRED int)", "capability_type": "read"},
+      {"name": "execute_workflow", "description": "Execute a workflow. Parameters: workflow_name (REQUIRED string), company_id (REQUIRED int), enable_logging (optional bool), watchdog_timeout (optional int ms)", "capability_type": "execute"},
+      {"name": "get_last_error", "description": "Get last workflow execution error. Parameters: company_id (REQUIRED int)", "capability_type": "read"},
+      {"name": "list_tags", "description": "List available tags for a company. ALWAYS use this to show user available tags before creating workflow. Parameters: company_id (REQUIRED int), search (optional string to filter by name)", "capability_type": "read"},
+      {"name": "create_workflow", "description": "Create new workflow task. Parameters: workflow_name (REQUIRED), company_id (REQUIRED), trigger_type (optional: manual/schedule/tag_change)", "capability_type": "write"},
+      {"name": "create_complete_workflow", "description": "Create a complete workflow with nodes and edges in a SINGLE call. Parameters: workflow_name (string), company_id (int), workflow_json (object). CRITICAL FORMAT: workflow_json must have {nodes:[], edges:[], localVars:[]}. NODE TYPES (CASE-SENSITIVE!): circularNode (Start/End), Condition, Alarm, Email, SMS, PLCCommand, Arithmetic. CONDITION NODE FORMAT: {id:'1', type:'Condition', data:{label:'Temp>30?', selectedCondition:'>', selectedVariable1:'tag_XXXXX', selectedVariable2:'30', inputType1:'select', inputType2:'text'}, position:{x:250,y:100}}. ALARM NODE: {id:'2', type:'Alarm', data:{label:'High Temp', message:'Alert!', severity:'critical', variables:[]}}. EDGES: {id:'e0-1', source:'0', target:'1'} for normal, {id:'e1-2-true', source:'1', target:'2', sourceHandle:'true'} for condition true branch. EXAMPLE: {nodes:[{id:'0',type:'circularNode',data:{label:'Start'},position:{x:250,y:5}},{id:'1',type:'Condition',data:{label:'Temp>35?',selectedCondition:'>',selectedVariable1:'tag_11445',selectedVariable2:'35',inputType1:'select',inputType2:'text'},position:{x:250,y:100}},{id:'2',type:'Alarm',data:{label:'High Temp Alarm',message:'Temperature exceeded!',severity:'critical',variables:[]},position:{x:100,y:200}},{id:'9999',type:'circularNode',data:{label:'End'},position:{x:250,y:300}}],edges:[{id:'e0-1',source:'0',target:'1'},{id:'e1-2-true',source:'1',target:'2',sourceHandle:'true'},{id:'e1-9999-false',source:'1',target:'9999',sourceHandle:'false'},{id:'e2-9999',source:'2',target:'9999'}],localVars:[]}", "capability_type": "write"},
+      {"name": "delete_workflow", "description": "Delete a workflow. Parameters: workflow_name (REQUIRED), company_id (REQUIRED)", "capability_type": "write"},
+      {"name": "add_node", "description": "Add node to workflow. Parameters: workflow_id (REQUIRED), company_id (REQUIRED), node_type (REQUIRED - see node_types), node_data (object with type-specific properties)", "capability_type": "write"},
+      {"name": "update_node", "description": "Update node. Parameters: workflow_id, company_id, node_id, updates (object)", "capability_type": "write"},
+      {"name": "remove_node", "description": "Remove node. Parameters: workflow_id, company_id, node_id", "capability_type": "write"},
+      {"name": "connect_nodes", "description": "Connect nodes. Parameters: workflow_id, company_id, source_id, target_id, sourceHandle (optional: 'true'/'false' for condition branches)", "capability_type": "write"},
+      {"name": "disconnect_nodes", "description": "Disconnect nodes. Parameters: workflow_id, company_id, source_id, target_id", "capability_type": "write"},
+      {"name": "validate_workflow", "description": "Validate workflow. Parameters: workflow_id, company_id", "capability_type": "read"},
+      {"name": "get_node_types", "description": "Get available node types and their data schemas", "capability_type": "read"}
+    ],
+    "IMPORTANT_NODE_TYPES_ARE_CASE_SENSITIVE": "Node types must match EXACTLY: 'Condition' not 'condition', 'Alarm' not 'alarm'",
+    "node_types": {
+      "circularNode": {
+        "description": "Start/End node - marks workflow start or end",
+        "data": {"label": "Start or End"},
+        "example": {"id": "0", "type": "circularNode", "data": {"label": "Start"}, "position": {"x": 250, "y": 5}}
+      },
+      "Condition": {
+        "description": "Condition evaluation - branches based on comparison. IMPORTANT: Use 'Condition' not 'condition'",
+        "data": {
+          "label": "Description of condition",
+          "selectedCondition": "Operator: =, !=, >, <, >=, <=",
+          "selectedVariable1": "tag_XXXX format for tags",
+          "selectedVariable2": "Value or tag_XXXX",
+          "inputType1": "select (for tag) or text (for constant)",
+          "inputType2": "select (for tag) or text (for constant)"
+        },
+        "example": {
+          "id": "1",
+          "type": "Condition",
+          "data": {
+            "label": "Temperature > 30?",
+            "selectedCondition": ">",
+            "selectedVariable1": "tag_11445",
+            "selectedVariable2": "30",
+            "inputType1": "select",
+            "inputType2": "text"
+          },
+          "position": {"x": 250, "y": 100}
+        }
+      },
+      "And": {"description": "Logical AND gate", "data": {"label": "Label"}},
+      "Or": {"description": "Logical OR gate", "data": {"label": "Label"}},
+      "Xor": {"description": "Logical XOR gate", "data": {"label": "Label"}},
+      "Not": {"description": "Logical NOT gate", "data": {"label": "Label"}},
+      "Arithmetic": {
+        "description": "Math expression evaluation",
+        "data": {
+          "expression": "Display expression",
+          "outputVariable": "Variable ID to store result",
+          "expressionId": "Expression with tag IDs. Supports: abs, pow, sqrt, sin, cos, tan, log, round, min, max, Now.Hour, Now.Minute"
+        }
+      },
+      "Service": {
+        "description": "REST/SOAP web service call",
+        "data": {
+          "service": "{id, type: rest|soap, url}",
+          "method": "{httpMethod, path, name}",
+          "parameterMappings": "Map param IDs to variables",
+          "outputMappings": "Map outputs to variables"
+        }
+      },
+      "Switch": {
+        "description": "Switch/case routing",
+        "data": {
+          "switchVariable": "Variable to evaluate",
+          "cases": "[{value, targetNodeId}]"
+        }
+      },
+      "For": {
+        "description": "For loop - fixed iterations",
+        "data": {
+          "iterations": "Number of iterations",
+          "counterVariable": "Loop counter variable"
+        }
+      },
+      "Loop": {
+        "description": "While loop - condition-based",
+        "data": {"condition": "Loop condition expression"}
+      },
+      "Scenario": {
+        "description": "Call another workflow (sub-workflow)",
+        "data": {"workflowName": "Name of workflow to call"}
+      },
+      "Email": {
+        "description": "Send email notification",
+        "data": {
+          "to": "Recipient email",
+          "subject": "Email subject",
+          "message": "Body with {variableName} placeholders"
+        }
+      },
+      "SMS": {
+        "description": "Send SMS notification",
+        "data": {
+          "phoneNumber": "Recipient phone (or use 'to')",
+          "message": "Message with {variableName} placeholders"
+        }
+      },
+      "Alarm": {
+        "description": "Create system alarm. IMPORTANT: Use 'Alarm' not 'alarm'",
+        "data": {
+          "label": "Alarm name",
+          "message": "Alarm message",
+          "severity": "critical | warning | info",
+          "variables": []
+        },
+        "example": {
+          "id": "2",
+          "type": "Alarm",
+          "data": {
+            "label": "High Temperature Alarm",
+            "message": "Temperature exceeded threshold!",
+            "severity": "critical",
+            "variables": []
+          },
+          "position": {"x": 100, "y": 200}
+        }
+      },
+      "PLCCommand": {
+        "description": "Write value to PLC tag",
+        "data": {
+          "selectedTag": "Target tag ID",
+          "commandValue": "Value to write",
+          "tagInputType": "tag | constant",
+          "valueInputType": "tag | constant"
+        }
+      },
+      "RisingEdge": {
+        "description": "Detect rising edge (false->true transition)",
+        "data": {"condition": "Condition to monitor"}
+      }
+    },
+    "workflow_rules": {
+      "CRITICAL_BRANCHING": "ONLY Condition and Switch nodes can have multiple outgoing edges. All other nodes (including Start) must have exactly ONE outgoing edge. WorkflowExecutor follows a SINGLE execution path.",
+      "INVALID_PATTERN": "Start -> [NodeA, NodeB] (parallel branches from non-Condition node)",
+      "VALID_PATTERN": "Start -> Condition -> (true: NodeA, false: NodeB)",
+      "AND_OR_LOGIC": "For multiple conditions with AND/OR, connect them in SERIES: Start -> Cond1 -> Cond2 -> And -> Action -> End",
+      "TAG_FORMAT": "Tag references MUST use 'tag_XXXX' format (e.g., 'tag_7228'). Use inputType='select' for tags, inputType='text' for constants."
+    },
+    "agent_behavior": {
+      "COMPANY_ID_REQUIRED": "If user does not specify company_id, ASK before creating workflow.",
+      "TAG_COMPANY_MATCH": "Tags MUST belong to the same company as the workflow. Use list_tags to verify if needed."
+    },
+    "tag_reference_format": {
+      "description": "How to reference tags in Condition and PLCCommand nodes",
+      "tag_selection": {
+        "selectedVariable1": "tag_XXXX (use tag_ prefix with tag ID)",
+        "inputType1": "select (for tag reference)"
+      },
+      "constant_value": {
+        "selectedVariable2": "35 (direct value)",
+        "inputType2": "text (for constant)"
+      }
+    },
+    "COMPLETE_WORKFLOW_EXAMPLE": {
+      "description": "Temperature alarm workflow - triggers alarm when tag_11445 > 30",
+      "workflow_json": {
+        "nodes": [
+          {"id": "0", "type": "circularNode", "data": {"label": "Start"}, "position": {"x": 250, "y": 5}},
+          {"id": "1", "type": "Condition", "data": {"label": "Temp > 30?", "selectedCondition": ">", "selectedVariable1": "tag_11445", "selectedVariable2": "30", "inputType1": "select", "inputType2": "text"}, "position": {"x": 250, "y": 100}},
+          {"id": "2", "type": "Alarm", "data": {"label": "High Temp Alarm", "message": "Temperature exceeded 30!", "severity": "critical", "variables": []}, "position": {"x": 100, "y": 200}},
+          {"id": "9999", "type": "circularNode", "data": {"label": "End"}, "position": {"x": 250, "y": 300}}
+        ],
+        "edges": [
+          {"id": "e0-1", "source": "0", "target": "1"},
+          {"id": "e1-2-true", "source": "1", "target": "2", "sourceHandle": "true"},
+          {"id": "e1-9999-false", "source": "1", "target": "9999", "sourceHandle": "false"},
+          {"id": "e2-9999", "source": "2", "target": "9999"}
+        ],
+        "localVars": []
+      }
+    },
+    "dependencies": ["httpx", "uuid"],
+    "tags": ["rmms", "workflow", "automation", "industrial", "plc"]
+  },
+
+  "tool_configuration": {
+    "tool_name": "rmms_workflow_tool",
+    "enabled": true,
+    "config": {
+      "plugin_type": "python_module",
+      "module_path": "plugins.rmms_workflow_tool.rmms_workflow_tool",
+      "class_name": "RMMSWorkflowTool",
+      "api_base_url": "https://rmms-metis-engine.azurewebsites.net/api",
+      "timeout": 30
+    },
+    "user_permissions": [],
+    "rate_limits": {
+      "requests_per_minute": 60,
+      "requests_per_hour": 500
+    }
+  }
+}
