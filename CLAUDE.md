@@ -1,5 +1,28 @@
 # CLAUDE.md — OS/Aracı Projesi
 
+## 🔗 GitHub Repository
+
+- **Repository URL**: https://github.com/AhmetBahar/MetisAgent
+- **Clone (HTTPS)**: `git clone https://github.com/AhmetBahar/MetisAgent.git`
+- **Clone (SSH)**: `git clone git@github.com:AhmetBahar/MetisAgent.git`
+- **Owner**: AhmetBahar
+- **Branch**: main
+- **Created**: 15 Ocak 2026
+
+**Git Komutları:**
+```bash
+# Değişiklikleri çek
+git pull origin main
+
+# Değişiklikleri gönder
+git add . && git commit -m "commit mesajı" && git push origin main
+
+# Durumu kontrol et
+git status
+```
+
+---
+
 ## 🎯 Projenin Amacı
 
 Bu proje, kişisel ve genişetilebili bir sistem yardımcısıdır. Sistem araçlarının yanı sıra özellikle web scraping, sosyal medya veya yazılım geliştirme gibi konular içinde otomasyonu sağlayacak olan araçlar içerir. 3.parti MCP araçların yüklenebilmesine ve kullanılabilmesine olanak sağlayan yapıdadır.
