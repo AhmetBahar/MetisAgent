@@ -37,6 +37,7 @@ from core.services.tool_execution_service import ToolExecutionService, ToolExecu
 from core.services.settings_card_service import SettingsCardService
 from core.services.tool_card_discovery_service import ToolCardDiscoveryService
 from core.services.persona_service import PersonaService
+from core.services import IdempotencyService, ToolEventsService, ToolEventType
 from core.orchestrator.application_orchestrator import ApplicationOrchestrator
 from core.contracts.base_types import ExecutionContext
 from core.contracts import ToolMetadata, ToolConfiguration, ToolType, CapabilityType, ToolCapability
@@ -83,6 +84,26 @@ def handle_leave_workflow_room(data):
     logger.info(f"🚪 Client left workflow room: {room}")
     emit('room_left', {'room': room, 'user_id': user_id})
 
+@socketio.on('join_tool_events')
+def handle_join_tool_events(data):
+    """Join tool events room to receive real-time tool execution updates"""
+    user_id = data.get('user_id', 'anonymous')
+    room = f"tools_{user_id}"
+    from flask_socketio import join_room, emit
+    join_room(room)
+    logger.info(f"🔧 Client joined tool events room: {room}")
+    emit('tool_events_joined', {'room': room, 'user_id': user_id})
+
+@socketio.on('leave_tool_events')
+def handle_leave_tool_events(data):
+    """Leave tool events room"""
+    user_id = data.get('user_id', 'anonymous')
+    room = f"tools_{user_id}"
+    from flask_socketio import leave_room, emit
+    leave_room(room)
+    logger.info(f"🔧 Client left tool events room: {room}")
+    emit('tool_events_left', {'room': room, 'user_id': user_id})
+
 class BridgeServer:
     """Pure bridge server between React frontend and MetisAgent3 backend"""
     
@@ -120,8 +141,17 @@ class BridgeServer:
             # Initialize application orchestrator first - it creates tool_manager with graph_memory
             from core.storage.sqlite_storage import SQLiteUserStorage
             self.storage = SQLiteUserStorage()
+
+            # Get application_id from environment (axis, rmms, or None for all)
+            application_id = os.environ.get('METIS_APPLICATION_ID', None)
+            if application_id:
+                logger.info(f"🎯 Application filter: {application_id} (only {application_id} tools will be loaded)")
+            else:
+                logger.info("🌐 No application filter - loading ALL available tools")
+
             self.orchestrator = ApplicationOrchestrator(
-                storage=self.storage
+                storage=self.storage,
+                application_id=application_id
                 # Let orchestrator create its own tool_manager with graph_memory
             )
 
@@ -143,6 +173,12 @@ class BridgeServer:
             self.card_discovery_service = ToolCardDiscoveryService()
             self.settings_card_service.set_card_discovery_service(self.card_discovery_service)
 
+            # Initialize MCP Server services (idempotency, events)
+            self.idempotency_service = IdempotencyService(default_ttl_seconds=3600, max_records=10000)
+
+            # Tool events service with Socket.IO for real-time events
+            self.tool_events_service = ToolEventsService(socketio=socketio)
+
             # Auto-discover and register all tool cards (async will be called later)
             plugins_directory = str(Path(__file__).parent / "plugins")
             self.plugins_directory = plugins_directory
@@ -159,10 +195,13 @@ class BridgeServer:
             # No manual tool loading needed - orchestrator handles system tools via _init_tool_manager()
             
             self.initialized = True
-            
+
             # Auto-load enabled plugins at startup
             await auto_load_enabled_plugins()
-            
+
+            # Re-index classifier after all plugins are loaded
+            await self.orchestrator.reindex_classifier()
+
             logger.info("✅ Bridge server initialized successfully")
             
         except Exception as e:
@@ -367,6 +406,33 @@ async def get_anthropic_models(api_key: str) -> List[str]:
         return ["claude-3-5-sonnet-20241022"]  # Fallback
 
 
+async def check_lmstudio_available() -> bool:
+    """Check if LMStudio is available at the configured URL"""
+    try:
+        import requests
+        # LMStudio default URL - could be made configurable via env var
+        lmstudio_url = os.getenv("LMSTUDIO_URL", "http://192.168.1.104:1234")
+
+        response = requests.get(
+            f"{lmstudio_url}/v1/models",
+            timeout=5
+        )
+
+        if response.status_code == 200:
+            logger.info(f"✅ LMStudio available at {lmstudio_url}")
+            return True
+        else:
+            logger.warning(f"LMStudio not available: {response.status_code}")
+            return False
+
+    except requests.exceptions.ConnectionError:
+        logger.warning(f"LMStudio connection failed - server not reachable")
+        return False
+    except Exception as e:
+        logger.warning(f"LMStudio check failed: {e}")
+        return False
+
+
 # Global bridge server instance
 bridge = BridgeServer()
 
@@ -469,13 +535,24 @@ def get_providers():
                     })
                 else:
                     providers.append({
-                        "id": "anthropic", 
+                        "id": "anthropic",
                         "name": "Anthropic",
                         "available": False,
                         "models": [],
                         "default_model": "claude-3-5-sonnet-20241022"
                     })
-                
+
+                # Check LMStudio (local, no API key needed)
+                lmstudio_available = await check_lmstudio_available()
+                lmstudio_models = llm_tool.providers.get("lmstudio", {}).get("models", [])
+                providers.append({
+                    "id": "lmstudio",
+                    "name": "LMStudio (Local)",
+                    "available": lmstudio_available,
+                    "models": lmstudio_models if lmstudio_available else [],
+                    "default_model": "google/gemma-3n-e4b"
+                })
+
                 return {
                     "success": True,
                     "data": providers
@@ -766,6 +843,8 @@ def chat():
         if not model:
             if provider == 'anthropic':
                 model = 'claude-3-7-sonnet-latest'  # Default Anthropic model
+            elif provider == 'lmstudio':
+                model = 'google/gemma-3n-e4b'  # Default LMStudio model
             else:
                 model = 'gpt-4o-mini'  # Default OpenAI model
         else:
@@ -1548,7 +1627,8 @@ def list_plugins():
                         # Check if plugin is registered in tool manager
                         plugin_name = manifest.get("name")
                         is_installed = plugin_name in bridge.orchestrator.tool_manager.tools
-                        
+                        is_enabled = manifest.get("enabled", False)
+
                         plugin_info = {
                             "name": plugin_name,
                             "display_name": manifest.get("display_name", plugin_name),
@@ -1558,7 +1638,7 @@ def list_plugins():
                             "tags": manifest.get("tags", []),
                             "capabilities": [cap.get("name") for cap in manifest.get("capabilities", [])],
                             "is_installed": is_installed,
-                            "is_enabled": is_installed,  # For now, installed = enabled
+                            "is_enabled": is_enabled,  # Read from manifest.json
                             "plugin_path": str(plugin_dir),
                             "dependencies": manifest.get("dependencies", [])
                         }
@@ -1828,6 +1908,76 @@ def configure_plugin(plugin_name):
             "success": False,
             "error": str(e),
             "message": f"Failed to configure plugin {plugin_name}"
+        }), 500
+
+
+@app.route('/api/plugins/<plugin_name>/toggle', methods=['POST'])
+def toggle_plugin(plugin_name):
+    """Enable or disable a plugin by modifying its manifest.json"""
+    try:
+        data = request.get_json() or {}
+        enabled = data.get('enabled')  # If not provided, will toggle
+
+        # Find plugin manifest
+        plugin_dir = Path("./plugins") / plugin_name
+        manifest_file = plugin_dir / "manifest.json"
+
+        if not manifest_file.exists():
+            return jsonify({
+                "success": False,
+                "error": f"Plugin {plugin_name} not found"
+            }), 404
+
+        # Read current manifest
+        with open(manifest_file, 'r') as f:
+            manifest = json.load(f)
+
+        # Toggle or set enabled status
+        current_enabled = manifest.get("enabled", False)
+        new_enabled = enabled if enabled is not None else (not current_enabled)
+        manifest["enabled"] = new_enabled
+
+        # Save updated manifest
+        with open(manifest_file, 'w') as f:
+            json.dump(manifest, f, indent=2, ensure_ascii=False)
+
+        # If enabling, load the plugin; if disabling, unload it
+        if bridge.is_ready():
+            async def handle_plugin_state():
+                try:
+                    if new_enabled:
+                        # Load the plugin
+                        config_file = plugin_dir / "tool_config.json"
+                        if config_file.exists():
+                            with open(config_file, 'r') as f:
+                                config = json.load(f)
+                            await bridge.orchestrator.tool_manager.load_tool(manifest, config)
+                            logger.info(f"✅ Plugin {plugin_name} enabled and loaded")
+                    else:
+                        # Unload the plugin
+                        if plugin_name in bridge.orchestrator.tool_manager.tools:
+                            await bridge.orchestrator.tool_manager.unload_tool(plugin_name)
+                            logger.info(f"❌ Plugin {plugin_name} disabled and unloaded")
+                except Exception as e:
+                    logger.error(f"Plugin state change error: {e}")
+
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(handle_plugin_state())
+            loop.close()
+
+        return jsonify({
+            "success": True,
+            "plugin_name": plugin_name,
+            "enabled": new_enabled,
+            "message": f"Plugin {plugin_name} {'enabled' if new_enabled else 'disabled'}"
+        })
+
+    except Exception as e:
+        logger.error(f"Toggle plugin error: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
         }), 500
 
 
@@ -2956,6 +3106,71 @@ def get_available_tools():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+# Tool Classifier Endpoints (MCP Server Plan)
+@app.route('/api/tools/classify', methods=['POST'])
+def classify_tools():
+    """Classify user query and return shortlisted tools"""
+    try:
+        if not bridge.is_ready():
+            return jsonify({"success": False, "error": "Bridge server not ready"}), 503
+
+        data = request.get_json() or {}
+        query = data.get('query', '')
+        include_high_risk = data.get('include_high_risk', False)
+
+        if not query:
+            return jsonify({"success": False, "error": "Query is required"}), 400
+
+        result = bridge.orchestrator.classify_tools_for_query(query, include_high_risk)
+
+        return jsonify({
+            "success": True,
+            "classification": result
+        })
+
+    except Exception as e:
+        logger.error(f"Tool classification error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/tools/classifier/stats', methods=['GET'])
+def get_classifier_stats():
+    """Get tool classifier statistics"""
+    try:
+        if not bridge.is_ready():
+            return jsonify({"success": False, "error": "Bridge server not ready"}), 503
+
+        stats = bridge.orchestrator.get_classifier_statistics()
+
+        return jsonify({
+            "success": True,
+            "statistics": stats
+        })
+
+    except Exception as e:
+        logger.error(f"Get classifier stats error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/services/idempotency/stats', methods=['GET'])
+def get_idempotency_stats():
+    """Get idempotency service statistics"""
+    try:
+        if not bridge.is_ready():
+            return jsonify({"success": False, "error": "Bridge server not ready"}), 503
+
+        stats = bridge.idempotency_service.get_statistics()
+
+        return jsonify({
+            "success": True,
+            "statistics": stats
+        })
+
+    except Exception as e:
+        logger.error(f"Get idempotency stats error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 # Settings Cards Endpoints
 @app.route('/api/settings/cards', methods=['GET'])
 def get_settings_cards():
@@ -3126,35 +3341,58 @@ def save_card_values(card_id):
 
 
 async def auto_load_enabled_plugins():
-    """Auto-load all enabled plugins at startup"""
+    """Auto-load all enabled plugins at startup, filtered by application_id"""
     try:
-        logger.info("🔌 Auto-loading enabled plugins...")
-        
+        # Get application_id from orchestrator
+        application_id = getattr(bridge.orchestrator, 'application_id', None)
+
+        if application_id:
+            logger.info(f"🔌 Auto-loading enabled plugins for application: {application_id}")
+        else:
+            logger.info("🔌 Auto-loading ALL enabled plugins (no application filter)")
+
         plugins_dir = Path("./plugins")
         if not plugins_dir.exists():
             return
-        
+
         loaded_count = 0
+        skipped_count = 0
+
         for plugin_dir in plugins_dir.iterdir():
             if plugin_dir.is_dir() and not plugin_dir.name.startswith('.'):
                 manifest_file = plugin_dir / "manifest.json"
                 if manifest_file.exists():
                     with open(manifest_file, 'r') as f:
                         manifest = json.load(f)
-                    
+
                     if manifest.get("enabled", False):
                         plugin_name = manifest.get("name", plugin_dir.name)
-                        logger.info(f"Loading enabled plugin: {plugin_name}")
-                        
-                        # Use the same logic as install_plugin
-                        success = await load_single_plugin(plugin_name)
-                        if success:
-                            loaded_count += 1
+                        plugin_app_id = manifest.get("application_id", None)
+
+                        # Application filter logic:
+                        # - If server has no application_id: load ALL plugins
+                        # - If plugin has no application_id: load for ALL applications (global tool)
+                        # - Otherwise: only load if application_id matches
+                        should_load = (
+                            application_id is None or  # Server accepts all
+                            plugin_app_id is None or   # Plugin is global
+                            plugin_app_id == application_id  # Match
+                        )
+
+                        if should_load:
+                            logger.info(f"Loading plugin: {plugin_name} (app: {plugin_app_id or 'global'})")
+
+                            success = await load_single_plugin(plugin_name)
+                            if success:
+                                loaded_count += 1
+                            else:
+                                logger.warning(f"Failed to auto-load plugin: {plugin_name}")
                         else:
-                            logger.warning(f"Failed to auto-load plugin: {plugin_name}")
-        
-        logger.info(f"✅ Auto-loaded {loaded_count} enabled plugins")
-        
+                            skipped_count += 1
+                            logger.debug(f"⏭️ Skipping plugin {plugin_name} (app: {plugin_app_id}, server: {application_id})")
+
+        logger.info(f"✅ Auto-loaded {loaded_count} enabled plugins, skipped {skipped_count} (application filter)")
+
     except Exception as e:
         logger.error(f"❌ Plugin auto-loading failed: {e}")
 

@@ -29,6 +29,7 @@ from ..services.conversation_service import ConversationService
 from ..services.conversation_memory_service import ConversationMemoryService
 from ..services.settings_service import SettingsService
 from ..storage.sqlite_storage import SQLiteUserStorage
+from ..classifier import ToolClassifier, ToolClassifierFactory
 
 logger = logging.getLogger(__name__)
 
@@ -294,11 +295,23 @@ class WorkflowTemplateManager:
 class ApplicationOrchestrator:
     """Main application orchestrator with Axis/RMMS style workflow management"""
     
-    def __init__(self, 
+    def __init__(self,
                  storage: Optional[SQLiteUserStorage] = None,
                  settings_service: Optional[SettingsService] = None,
-                 tool_manager: Optional['ToolManager'] = None):
-        
+                 tool_manager: Optional['ToolManager'] = None,
+                 application_id: Optional[str] = None):
+        """
+        Initialize Application Orchestrator.
+
+        Args:
+            storage: SQLite storage instance
+            settings_service: Settings service instance
+            tool_manager: Tool manager instance
+            application_id: Application filter - "axis", "rmms", or None for all tools
+        """
+        # Application filter for multi-app deployment
+        self.application_id = application_id
+
         # Core services
         self.storage = storage or SQLiteUserStorage()
         self.settings_service = settings_service or SettingsService(self.storage)
@@ -324,16 +337,19 @@ class ApplicationOrchestrator:
         # Workflow management
         self.template_manager = WorkflowTemplateManager(self.storage)
         self.active_executions: Dict[str, WorkflowExecution] = {}
-        
+
         # Workflow history tracking for UI
         self.workflow_history: List[Dict[str, Any]] = []
         self.max_history_size = 50  # Keep last 50 workflows
-        
+
+        # Tool Classifier for 3-stage tool selection (MCP Server Plan)
+        self.tool_classifier = ToolClassifierFactory.create_default()
+
         # System state
         self.is_initialized = False
         self.component_health: Dict[str, bool] = {}
-        
-        logger.info("Application Orchestrator initialized")
+
+        logger.info(f"Application Orchestrator initialized (application_id: {self.application_id or 'all'})")
     
     async def _load_system_tools(self):
         """Load tools based on type: internal (all users) vs plugin (settings-based)"""
@@ -462,7 +478,59 @@ class ApplicationOrchestrator:
                     
         except Exception as e:
             logger.error(f"Tool sync to memory failed: {e}")
-    
+
+    async def _index_tools_in_classifier(self):
+        """Index all loaded tools in the classifier for 3-stage selection"""
+        try:
+            # Get all tool metadata from registry
+            tools_metadata = {}
+            for tool_name in self.tool_manager.registry.tools:
+                metadata = self.tool_manager.registry.get_tool_metadata(tool_name)
+                if metadata:
+                    tools_metadata[tool_name] = metadata
+
+            if tools_metadata:
+                self.tool_classifier.index_tools(tools_metadata)
+                stats = self.tool_classifier.get_statistics()
+                logger.info(f"✅ Classifier indexed: {stats['total_tools']} tools, "
+                           f"{stats['total_capabilities']} capabilities")
+            else:
+                logger.warning("⚠️ No tools to index in classifier")
+
+        except Exception as e:
+            logger.error(f"Tool classifier indexing failed: {e}")
+
+    async def reindex_classifier(self):
+        """Re-index the classifier after new tools are loaded (public method)"""
+        logger.info("🔄 Re-indexing classifier with updated tools...")
+        await self._index_tools_in_classifier()
+
+    def classify_tools_for_query(self, query: str, include_high_risk: bool = False) -> Dict[str, Any]:
+        """
+        Classify query and return tool shortlist.
+
+        Args:
+            query: User query text
+            include_high_risk: Whether to include high-risk tools
+
+        Returns:
+            Classification result with shortlisted tools
+        """
+        try:
+            result = self.tool_classifier.classify(query, include_high_risk=include_high_risk)
+            return result.to_dict()
+        except Exception as e:
+            logger.error(f"Tool classification failed: {e}")
+            return {
+                "query": query,
+                "tool_names": [],
+                "error": str(e)
+            }
+
+    def get_classifier_statistics(self) -> Dict[str, Any]:
+        """Get tool classifier statistics"""
+        return self.tool_classifier.get_statistics()
+
     async def initialize(self) -> bool:
         """Initialize all system components"""
         try:
@@ -540,11 +608,15 @@ class ApplicationOrchestrator:
             # Sync all loaded tools to graph memory
             logger.info("💾 Syncing tools to graph memory...")
             await self._sync_tools_to_memory()
-            
+
+            # Index tools in classifier for 3-stage selection
+            logger.info("🔍 Indexing tools in classifier...")
+            await self._index_tools_in_classifier()
+
             # Log final tool count
             tool_count = len(await self.tool_manager.list_tools())
             logger.info(f"✅ Tool manager initialized with {tool_count} tools")
-            
+
             return True
         except Exception as e:
             logger.error(f"❌ Tool manager initialization failed: {e}")
@@ -1894,9 +1966,37 @@ Respond ONLY with valid JSON in this exact format:
             if not isinstance(value, str):
                 return value
 
+            # Pattern 0: {result_from_step_N} format (LLM generated)
+            import re
+            result_from_match = re.match(r'\{?result_from_step_(\d+)\}?', value)
+            if result_from_match:
+                step_num = result_from_match.group(1)
+                step_key = f"step_{step_num}"
+                if step_key in step_results:
+                    result = step_results[step_key]
+                    # Return the whole result or extract relevant ID
+                    if isinstance(result, dict):
+                        # Try to find relevant ID based on param_name
+                        if param_name in ['widget_id', 'widgetId']:
+                            for field in ['widget_id', 'widgetId', 'id', 'component_id']:
+                                if field in result:
+                                    logger.info(f"🔗 Resolved {value} -> {result[field]}")
+                                    return result[field]
+                                if 'data' in result and isinstance(result['data'], dict) and field in result['data']:
+                                    logger.info(f"🔗 Resolved {value} -> {result['data'][field]}")
+                                    return result['data'][field]
+                        # Return first ID-like field found
+                        for field in id_fields:
+                            if field in result:
+                                logger.info(f"🔗 Resolved {value} -> {result[field]}")
+                                return result[field]
+                    logger.info(f"🔗 Resolved {value} -> {result}")
+                    return result
+                else:
+                    logger.warning(f"⚠️ Step {step_key} not found in results for placeholder {value}")
+
             # Pattern 1: Explicit reference like "$step_1.pageId"
             if value.startswith('$step_'):
-                import re
                 match = re.match(r'\$step_(\d+)\.(\w+)', value)
                 if match:
                     step_num = match.group(1)
