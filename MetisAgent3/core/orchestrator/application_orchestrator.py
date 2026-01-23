@@ -1860,7 +1860,8 @@ Respond ONLY with valid JSON in this exact format:
         # STEP 0: Resolve placeholders from previous step results
         # ============================================================
         if step_results:
-            normalized = self._resolve_step_placeholders(normalized, step_results)
+            step_context = f"{step.name} {step.description}".lower() if hasattr(step, 'name') else ""
+            normalized = self._resolve_step_placeholders(normalized, step_results, step_context)
             logger.debug(f"🔗 After placeholder resolution: {normalized}")
         
         if step.tool_name == "llm_tool" and step.capability in ["chat", "generate_response"]:
@@ -1930,13 +1931,15 @@ Respond ONLY with valid JSON in this exact format:
                 
         return normalized
 
-    def _resolve_step_placeholders(self, params: Dict[str, Any], step_results: Dict[str, Any]) -> Dict[str, Any]:
+    def _resolve_step_placeholders(self, params: Dict[str, Any], step_results: Dict[str, Any], step_context: str = "") -> Dict[str, Any]:
         """Resolve placeholder values from previous step results.
 
         Handles patterns like:
         - "NEW_PAGE_ID" -> looks for pageId in previous steps
         - "$step_1.pageId" -> explicit reference to step_1's pageId
         - "PREVIOUS_RESULT" -> uses last step's main result
+
+        step_context: lowercase step name+description for name-based list filtering
         """
         if not step_results:
             return params
@@ -2045,11 +2048,15 @@ Respond ONLY with valid JSON in this exact format:
                                     return result[alias]
 
                             # Search inside list values within result
+                            # Build name context from params AND step_context
                             name_context = None
                             for pk, pv in params.items():
                                 if pk in ['name', 'page_name', 'pageName', 'search', 'filter_name'] and isinstance(pv, str) and not pv.startswith('$'):
                                     name_context = pv.lower()
                                     break
+                            # If no name in params, extract from step_context (step name/description)
+                            if not name_context and step_context:
+                                name_context = step_context
 
                             for result_key, result_val in result.items():
                                 if isinstance(result_val, list) and result_val:
@@ -2065,10 +2072,10 @@ Respond ONLY with valid JSON in this exact format:
                                         for item in result_val:
                                             if isinstance(item, dict):
                                                 item_name = (item.get('pageName') or item.get('name') or item.get('title') or '').lower()
-                                                if name_context in item_name or item_name in name_context:
+                                                if item_name and (item_name in name_context or name_context in item_name):
                                                     for alias in aliases:
                                                         if alias in item:
-                                                            logger.info(f"🔗 Resolved {value} -> {item[alias]} (name filter: {item_name})")
+                                                            logger.info(f"🔗 Resolved {value} -> {item[alias]} (name match: {item_name})")
                                                             return item[alias]
 
                                     # Fallback: use first item with matching alias
