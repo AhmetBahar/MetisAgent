@@ -2015,13 +2015,71 @@ Respond ONLY with valid JSON in this exact format:
                     if step_key in step_results:
                         result = step_results[step_key]
                         if isinstance(result, dict):
+                            # Direct field match
                             if field_name in result:
                                 logger.info(f"🔗 Resolved {value} -> {result[field_name]}")
                                 return result[field_name]
+                            # Check 'data' sub-dict
                             if 'data' in result and isinstance(result['data'], dict):
                                 if field_name in result['data']:
                                     logger.info(f"🔗 Resolved {value} -> {result['data'][field_name]}")
                                     return result['data'][field_name]
+
+                            # ID aliasing: page_id -> id, pageId, etc.
+                            id_alias_map = {
+                                'page_id': ['id', 'pageId'],
+                                'company_id': ['id', 'companyId'],
+                                'widget_id': ['id', 'widgetId'],
+                                'workflow_id': ['id', 'workflowId'],
+                                'code_id': ['id', 'codeId'],
+                                'datasource_id': ['id', 'datasourceId'],
+                                'task_id': ['id', 'taskId'],
+                                'node_id': ['id', 'nodeId'],
+                            }
+                            aliases = id_alias_map.get(field_name, [field_name])
+
+                            # Try aliases at top level
+                            for alias in aliases:
+                                if alias in result:
+                                    logger.info(f"🔗 Resolved {value} -> {result[alias]} (alias {field_name}->{alias})")
+                                    return result[alias]
+
+                            # Search inside list values within result
+                            name_context = None
+                            for pk, pv in params.items():
+                                if pk in ['name', 'page_name', 'pageName', 'search', 'filter_name'] and isinstance(pv, str) and not pv.startswith('$'):
+                                    name_context = pv.lower()
+                                    break
+
+                            for result_key, result_val in result.items():
+                                if isinstance(result_val, list) and result_val:
+                                    # Single item: use it directly
+                                    if len(result_val) == 1 and isinstance(result_val[0], dict):
+                                        for alias in aliases:
+                                            if alias in result_val[0]:
+                                                logger.info(f"🔗 Resolved {value} -> {result_val[0][alias]} (single list item)")
+                                                return result_val[0][alias]
+
+                                    # Multiple items: try name-based filtering
+                                    if name_context and len(result_val) > 1:
+                                        for item in result_val:
+                                            if isinstance(item, dict):
+                                                item_name = (item.get('pageName') or item.get('name') or item.get('title') or '').lower()
+                                                if name_context in item_name or item_name in name_context:
+                                                    for alias in aliases:
+                                                        if alias in item:
+                                                            logger.info(f"🔗 Resolved {value} -> {item[alias]} (name filter: {item_name})")
+                                                            return item[alias]
+
+                                    # Fallback: use first item with matching alias
+                                    for item in result_val:
+                                        if isinstance(item, dict):
+                                            for alias in aliases:
+                                                if alias in item:
+                                                    logger.info(f"🔗 Resolved {value} -> {item[alias]} (first list item fallback)")
+                                                    return item[alias]
+
+                            logger.warning(f"⚠️ Could not resolve {value} from step_results[{step_key}]")
 
             # Pattern 2: Generic placeholders like "NEW_PAGE_ID", "PREVIOUS_RESULT"
             placeholder_patterns = [

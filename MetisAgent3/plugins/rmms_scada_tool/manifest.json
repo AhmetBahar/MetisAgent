@@ -26,7 +26,8 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "company_id": {"type": "integer", "description": "Filter by company ID"}
+          "company_id": {"type": "integer", "description": "Filter by company ID"},
+          "page_name": {"type": "string", "description": "Filter by page name (case-insensitive partial match)"}
         }
       }
     },
@@ -191,7 +192,7 @@
   ],
 
   "usage_patterns": [
-    "To count or query widgets: list_pages → find page_id → analyze_page(page_id)",
+    "To count or query widgets: list_pages(page_name='PageName') → get page_id from result → analyze_page(page_id)",
     "To add a widget with tag binding: get_tags(search=keyword) → get tag ID → add_widget(page_id, widget_type, properties={tagBinding:{tagId:ID}})",
     "To modify a widget: analyze_page(page_id) → find widget_id → update_widget(page_id, widget_id, updates)",
     "To remove a widget: analyze_page(page_id) → find widget_id → remove_widget(page_id, widget_id)"

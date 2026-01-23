@@ -275,8 +275,9 @@ class RMMSScadaTool(BaseTool):
         return [cap.name for cap in self.metadata.capabilities]
 
     async def _list_pages(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """List all SCADA pages, optionally filtered by company"""
+        """List all SCADA pages, optionally filtered by company and/or name"""
         company_id = params.get("company_id", self.default_company_id)
+        page_name_filter = params.get("page_name", "").strip().lower()
         headers = await self._get_auth_headers(company_id)
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
@@ -286,10 +287,15 @@ class RMMSScadaTool(BaseTool):
 
             if response.status_code == 200:
                 pages = response.json()
+
+                # Client-side name filtering
+                if page_name_filter:
+                    pages = [p for p in pages if page_name_filter in (p.get("pageName") or p.get("name") or "").lower()]
+
                 return {
                     "success": True,
                     "data": {"pages": pages, "count": len(pages)},
-                    "message": f"Found {len(pages)} SCADA pages"
+                    "message": f"Found {len(pages)} SCADA pages" + (f" matching '{params.get('page_name')}'" if page_name_filter else "")
                 }
             elif response.status_code == 401:
                 return {"success": False, "error": "Authentication failed - invalid token"}
