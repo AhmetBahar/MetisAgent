@@ -726,7 +726,17 @@ class ApplicationOrchestrator:
             try:
                 # Get user tools from graph memory
                 user_tools = await self.graph_memory_service.get_user_tools(context.user_id)
-                logger.info(f"📦 Retrieved {len(user_tools)} tools for user {context.user_id}")
+
+                # Per-request application_id filtering
+                app_id = getattr(context, 'application_id', None)
+                if app_id:
+                    user_tools = [
+                        t for t in user_tools
+                        if t.get("application_id") is None or t.get("application_id") == app_id
+                    ]
+                    logger.info(f"📦 {len(user_tools)} tools after application filter (app: {app_id})")
+                else:
+                    logger.info(f"📦 Retrieved {len(user_tools)} tools for user {context.user_id}")
 
                 # Get lightweight conversation memory context (replaces full history)
                 memory_context = await self.conversation_memory_service.get_context_for_llm(
@@ -2150,43 +2160,53 @@ Respond ONLY with valid JSON in this exact format:
         """Use LLM to analyze step failure and provide remedy (INLINE VERSION)"""
         
         try:
-            # Build context for LLM reasoning  
+            # Build context for LLM reasoning
             previous_results = workflow_context.get("step_results", {})
-            
+
+            # Get tool's capability schema for constraint
+            capability_schema_str = "Unknown schema"
+            try:
+                metadata = self.tool_manager.registry.get_tool_metadata(step.tool_name)
+                if metadata:
+                    for cap in metadata.capabilities:
+                        if cap.name == step.capability:
+                            capability_schema_str = json.dumps(cap.input_schema, indent=2, ensure_ascii=False)
+                            break
+            except Exception:
+                pass
+
             remedy_prompt = f"""
 STEP FAILURE ANALYSIS & REMEDY
 
 **Failed Step Details:**
-- Step Name: {step.name}
-- Tool: {step.tool_name}  
+- Tool: {step.tool_name}
 - Capability: {step.capability}
-- Input Data: {step_input}
+- Input Data: {json.dumps(step_input, ensure_ascii=False)}
 - Error: {failure_error}
-- Failure Data: {failure_data}
+- Response Data: {str(failure_data)[:300] if failure_data else 'None'}
+
+**Capability Input Schema (ONLY these parameters are valid):**
+{capability_schema_str}
 
 **Previous Successful Steps:**
 {self._format_previous_results_for_remedy_inline(previous_results)}
 
 **Attempt Number:** {attempt_number}/3
 
-**TASK:** Analyze this specific step failure and provide a precise remedy.
+**TASK:** Analyze this failure and provide corrected input parameters.
 
-**CRITICAL: This is a DIRECTORY PATH CASE MISMATCH issue!**
+**RULES:**
+- The "updated_input" MUST only contain keys defined in the Capability Input Schema above
+- Do NOT invent parameters that don't exist in the schema (e.g. no "command" unless schema defines it)
+- Fix the actual error: wrong values, missing required fields, type mismatches
+- If the error indicates the capability/tool doesn't support this operation, set confidence_level to 0.0
 
-**EXPECTED PROBLEM**: Directory name capitalization is wrong:
-- User mentioned "Rmms" but actual directory is "RMMS" (all caps)
-- User mentioned "metisAgent" but actual directory is "MetisAgent" (capital M)
-
-**REQUIRED FIX**: Correct the directory paths in the command:
-- Change "/home/ahmet/Rmms" to "/home/ahmet/RMMS"  
-- Change "/home/ahmet/metisAgent" to "/home/ahmet/MetisAgent"
-
-**REQUIRED REMEDY OUTPUT (JSON):**
+**RESPOND WITH ONLY THIS JSON (no other text):**
 {{
-    "root_cause": "Directory name case mismatch - wrong capitalization",
-    "remedy_strategy": "Correct directory paths to match actual filesystem", 
-    "updated_input": {{"command": "du -sh /home/ahmet/RMMS (or /home/ahmet/MetisAgent)"}},
-    "confidence_level": 0.95
+    "root_cause": "<brief description of why it failed>",
+    "remedy_strategy": "<what you're fixing>",
+    "updated_input": {{<corrected parameters matching the schema>}},
+    "confidence_level": <0.0 to 1.0>
 }}
 """
 
@@ -2204,7 +2224,6 @@ STEP FAILURE ANALYSIS & REMEDY
             
             if remedy_text:
                 # Try to parse JSON response (strip markdown code blocks if present)
-                import json
                 try:
                     # Clean up markdown code blocks
                     clean_text = remedy_text.strip()
@@ -2217,7 +2236,23 @@ STEP FAILURE ANALYSIS & REMEDY
                     clean_text = clean_text.strip()
                     
                     remedy_json = json.loads(clean_text)
-                    
+
+                    # Validate updated_input keys against capability schema
+                    updated_input = remedy_json.get("updated_input", {})
+                    if updated_input and capability_schema_str != "Unknown schema":
+                        try:
+                            cap_schema = json.loads(capability_schema_str)
+                            valid_keys = set(cap_schema.get("properties", {}).keys())
+                            if valid_keys:
+                                invalid_keys = set(updated_input.keys()) - valid_keys
+                                if invalid_keys:
+                                    logger.warning(f"🚨 Remedy contains invalid keys {invalid_keys}, filtering to schema keys {valid_keys}")
+                                    remedy_json["updated_input"] = {k: v for k, v in updated_input.items() if k in valid_keys}
+                                    if not remedy_json["updated_input"]:
+                                        return {"success": False, "reason": f"All remedy keys invalid: {invalid_keys}"}
+                        except (json.JSONDecodeError, Exception):
+                            pass
+
                     # Validate confidence level
                     confidence = remedy_json.get("confidence_level", 0.0)
                     if confidence > 0.6:  # Only apply high-confidence remedies

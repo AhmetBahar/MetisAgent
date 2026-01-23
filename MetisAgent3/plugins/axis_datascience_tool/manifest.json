@@ -1,0 +1,161 @@
+{
+  "name": "axis_datascience_tool",
+  "display_name": "Axis Data Science",
+  "description": "AI-powered data science and analytics for Axis - forecasting, anomaly detection, correlation analysis, and more",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_datascience_tool.axis_datascience_tool",
+  "class_name": "AxisDataScienceTool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "category": "datascience",
+
+  "capabilities": [
+    {
+      "name": "forecast",
+      "description": "Generate time series forecast using Prophet model for a tag",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_id": {"type": "integer", "description": "Tag ID to forecast"},
+          "start_date": {"type": "string", "description": "Historical data start date (ISO format)"},
+          "end_date": {"type": "string", "description": "Historical data end date (ISO format)"},
+          "periods": {"type": "integer", "default": 24, "description": "Number of periods to forecast"}
+        },
+        "required": ["tag_id", "start_date", "end_date"]
+      }
+    },
+    {
+      "name": "anomaly_detection",
+      "description": "Detect anomalies in tag data using machine learning (Isolation Forest, LOF)",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_id": {"type": "integer", "description": "Tag ID to analyze"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"},
+          "method": {"type": "string", "enum": ["isolation_forest", "lof", "auto"], "default": "auto"}
+        },
+        "required": ["tag_id", "start_date", "end_date"]
+      }
+    },
+    {
+      "name": "correlation",
+      "description": "Analyze correlation between multiple tags",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "List of tag IDs to correlate"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        },
+        "required": ["tag_ids", "start_date", "end_date"]
+      }
+    },
+    {
+      "name": "change_point_detection",
+      "description": "Detect significant change points in time series data",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_id": {"type": "integer"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        },
+        "required": ["tag_id", "start_date", "end_date"]
+      }
+    },
+    {
+      "name": "clustering",
+      "description": "Cluster similar patterns in tag data",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_ids": {"type": "array", "items": {"type": "integer"}},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"},
+          "n_clusters": {"type": "integer", "default": 3}
+        },
+        "required": ["tag_ids", "start_date", "end_date"]
+      }
+    },
+    {
+      "name": "root_cause_analysis",
+      "description": "Analyze potential root causes for anomalies in a target tag",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "target_tag_id": {"type": "integer", "description": "Tag with the issue"},
+          "candidate_tag_ids": {"type": "array", "items": {"type": "integer"}, "description": "Potential cause tags"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        },
+        "required": ["target_tag_id", "candidate_tag_ids", "start_date", "end_date"]
+      }
+    },
+    {
+      "name": "health_score",
+      "description": "Calculate equipment health score based on multiple tag values",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_ids": {"type": "array", "items": {"type": "integer"}},
+          "weights": {"type": "object", "description": "Optional weights for each tag"}
+        },
+        "required": ["tag_ids"]
+      }
+    },
+    {
+      "name": "early_warning",
+      "description": "Detect early warning signs of potential issues",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_id": {"type": "integer"},
+          "threshold": {"type": "number", "description": "Warning threshold"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        },
+        "required": ["tag_id", "start_date", "end_date"]
+      }
+    },
+    {
+      "name": "resample",
+      "description": "Resample tag data at different time intervals",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_id": {"type": "integer"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"},
+          "interval": {"type": "string", "enum": ["1min", "5min", "15min", "1h", "1d"], "default": "1h"},
+          "method": {"type": "string", "enum": ["mean", "sum", "min", "max", "last"], "default": "mean"}
+        },
+        "required": ["tag_id", "start_date", "end_date"]
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 60}
+    }
+  },
+
+  "tags": ["axis", "datascience", "analytics", "forecast", "anomaly", "ml", "industrial"]
+}

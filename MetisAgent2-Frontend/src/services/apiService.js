@@ -6,9 +6,10 @@ class ApiService {
   constructor() {
     this.api = axios.create({
       baseURL: API_BASE_URL,
-      timeout: 120000, // 120 seconds for long-running operations like image generation
+      timeout: 120000,
       headers: {
         'Content-Type': 'application/json',
+        'X-Application-Id': 'rmms',
       },
     });
 

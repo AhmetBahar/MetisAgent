@@ -75,6 +75,11 @@
         "name": "add_custom_widget",
         "description": "Add a custom widget to SCADA page. Parameters: page_id (required integer), custom_widget_id (required integer - ID from custom widgets table), x (optional int), y (optional int), properties (optional object for overriding default properties)",
         "capability_type": "write"
+      },
+      {
+        "name": "resize_widgets_by_type",
+        "description": "Bulk resize all widgets of a specific type on a page. USE THIS for requests like 'resize all boxes', 'kutuları büyüt/küçült'. Parameters: page_id (required integer), widget_type (string, default 'box'), increase_percent (integer - positive to grow, negative to shrink. Examples: 50 means 50% bigger, -40 means 40% smaller, 100 means double, -50 means half size)",
+        "capability_type": "write"
       }
     ],
     "dependencies": ["httpx"],

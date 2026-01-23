@@ -1,0 +1,131 @@
+{
+  "name": "axis_workorder_tool",
+  "display_name": "Axis Work Order Manager",
+  "description": "AI-powered work order management for Axis - create, assign, track, and complete work orders",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_workorder_tool.axis_workorder_tool",
+  "class_name": "AxisWorkOrderTool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "category": "workorder",
+
+  "capabilities": [
+    {
+      "name": "list_workorders",
+      "description": "List all work orders with optional filters",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "status": {"type": "string", "enum": ["Open", "InProgress", "Completed"]},
+          "priority": {"type": "string", "enum": ["Low", "Medium", "High", "Critical"]},
+          "assigned_user_id": {"type": "string"},
+          "company_id": {"type": "integer", "default": 1}
+        }
+      }
+    },
+    {
+      "name": "get_workorder",
+      "description": "Get a specific work order by ID",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workorder_id": {"type": "integer"}
+        },
+        "required": ["workorder_id"]
+      }
+    },
+    {
+      "name": "create_workorder",
+      "description": "Create a new work order",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "title": {"type": "string", "description": "Work order title"},
+          "description": {"type": "string"},
+          "priority": {"type": "string", "enum": ["Low", "Medium", "High", "Critical"], "default": "Medium"},
+          "work_order_type": {"type": "string", "default": "Maintenance"},
+          "location": {"type": "string"},
+          "equipment": {"type": "string"},
+          "estimated_hours": {"type": "number"},
+          "assigned_user_id": {"type": "string"},
+          "due_date": {"type": "string", "description": "Due date (ISO format)"}
+        },
+        "required": ["title"]
+      }
+    },
+    {
+      "name": "update_workorder",
+      "description": "Update an existing work order",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workorder_id": {"type": "integer"},
+          "title": {"type": "string"},
+          "description": {"type": "string"},
+          "priority": {"type": "string"},
+          "status": {"type": "string"},
+          "location": {"type": "string"},
+          "equipment": {"type": "string"}
+        },
+        "required": ["workorder_id"]
+      }
+    },
+    {
+      "name": "take_workorder",
+      "description": "Take/assign a work order to yourself (changes status to InProgress)",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workorder_id": {"type": "integer"},
+          "user_id": {"type": "string"}
+        },
+        "required": ["workorder_id", "user_id"]
+      }
+    },
+    {
+      "name": "close_workorder",
+      "description": "Close/complete a work order",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workorder_id": {"type": "integer"},
+          "actual_hours": {"type": "number"},
+          "completion_notes": {"type": "string"}
+        },
+        "required": ["workorder_id"]
+      }
+    },
+    {
+      "name": "get_workorder_stats",
+      "description": "Get work order statistics (counts by status)",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer", "default": 1}
+        }
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["axis", "workorder", "maintenance", "task", "management", "industrial"]
+}

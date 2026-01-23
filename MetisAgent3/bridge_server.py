@@ -142,17 +142,8 @@ class BridgeServer:
             from core.storage.sqlite_storage import SQLiteUserStorage
             self.storage = SQLiteUserStorage()
 
-            # Get application_id from environment (axis, rmms, or None for all)
-            application_id = os.environ.get('METIS_APPLICATION_ID', None)
-            if application_id:
-                logger.info(f"🎯 Application filter: {application_id} (only {application_id} tools will be loaded)")
-            else:
-                logger.info("🌐 No application filter - loading ALL available tools")
-
             self.orchestrator = ApplicationOrchestrator(
-                storage=self.storage,
-                application_id=application_id
-                # Let orchestrator create its own tool_manager with graph_memory
+                storage=self.storage
             )
 
             # Use orchestrator's tool_manager (has graph_memory for tool sync)
@@ -894,11 +885,15 @@ def chat():
         # Debug logging for user_id mapping
         logger.info(f"🔍 User ID Mapping: session_user_id={session_user_id}, email={email}, actual_user_id={actual_user_id}")
             
+        # Extract application_id from header for per-request tool filtering
+        req_application_id = request.headers.get('X-Application-Id', None)
+
         context = ExecutionContext(
             user_id=actual_user_id,
             session_id=conversation_id,
             conversation_id=conversation_id,
-            system_prompt=system_prompt
+            system_prompt=system_prompt,
+            application_id=req_application_id
         )
         
         # Bridge to MetisAgent3 orchestrator
@@ -1004,22 +999,28 @@ def chat():
 # Tools Endpoint - Get available tools
 @app.route('/api/tools', methods=['GET'])
 def get_tools():
-    """Get available tools from MetisAgent3 tool manager"""
+    """Get available tools from MetisAgent3 tool manager, filtered by X-Application-Id header"""
     try:
         if not bridge.is_ready():
             return jsonify({
                 "success": False,
                 "error": "Bridge server not ready"
             }), 503
-        
+
+        req_app_id = request.headers.get('X-Application-Id', None)
+
         async def get_tool_list():
             try:
                 tools = await bridge.tool_manager.list_tools()
                 tool_info = []
-                
+
                 for tool_name in tools:
                     metadata = bridge.tool_manager.registry.get_tool_metadata(tool_name)
                     if metadata:
+                        tool_app_id = getattr(metadata, 'application_id', None)
+                        # Filter by application_id if header provided
+                        if req_app_id and tool_app_id and tool_app_id != req_app_id:
+                            continue
                         tool_info.append({
                             "name": metadata.name,
                             "description": metadata.description,
@@ -1035,7 +1036,7 @@ def get_tools():
                             ],
                             "tags": list(metadata.tags)
                         })
-                
+
                 return {
                     "success": True,
                     "data": {
@@ -1166,6 +1167,239 @@ def register_remote_tool():
         return jsonify({"success": bool(ok)})
     except Exception as e:
         logger.error(f"register_remote_tool error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Plugin Registry API Endpoints
+# ──────────────────────────────────────────────────────────────────────────────
+
+@app.route('/api/plugins/upload', methods=['POST'])
+def upload_plugin():
+    """Upload a plugin ZIP, validate, store in Blob + DB"""
+    try:
+        if not bridge.is_ready():
+            return jsonify({"success": False, "error": "Bridge server not ready"}), 503
+
+        from core.config.azure_config import is_azure_environment
+        from core.services.plugin_registry_service import get_plugin_registry_service
+
+        if 'file' not in request.files:
+            return jsonify({"success": False, "error": "No file provided. Use multipart form with 'file' field."}), 400
+
+        file = request.files['file']
+        if not file.filename or not file.filename.endswith('.zip'):
+            return jsonify({"success": False, "error": "File must be a .zip archive"}), 400
+
+        plugin_name = request.form.get('name', '').strip()
+        if not plugin_name:
+            plugin_name = file.filename.replace('.zip', '')
+
+        plugin_zip = file.read()
+        metadata = {}
+        if request.form.get('application_id'):
+            metadata['application_id'] = request.form['application_id']
+
+        registry = get_plugin_registry_service()
+
+        async def do_upload():
+            return await registry.upload_plugin(plugin_zip, plugin_name, metadata)
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success, result = loop.run_until_complete(do_upload())
+        loop.close()
+
+        if success:
+            # Auto-load the plugin after upload
+            loop2 = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop2)
+            loaded = loop2.run_until_complete(load_single_plugin(plugin_name))
+            loop2.close()
+
+            return jsonify({
+                "success": True,
+                "plugin_id": result,
+                "loaded": loaded,
+                "message": f"Plugin '{plugin_name}' uploaded and {'loaded' if loaded else 'registered (load failed)'}"
+            })
+        else:
+            return jsonify({"success": False, "error": result}), 400
+
+    except Exception as e:
+        logger.error(f"upload_plugin error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/plugins/registry', methods=['GET'])
+def list_plugin_registry():
+    """List registered plugins, optionally filtered by X-Application-Id header"""
+    try:
+        if not bridge.is_ready():
+            return jsonify({"success": False, "error": "Bridge server not ready"}), 503
+
+        from core.services.plugin_registry_service import get_plugin_registry_service
+
+        registry = get_plugin_registry_service()
+        app_id = request.headers.get('X-Application-Id')
+
+        if app_id:
+            plugins = registry.list_by_application(app_id)
+        else:
+            plugins = registry.list_plugins()
+
+        return jsonify({"success": True, "plugins": plugins, "count": len(plugins)})
+
+    except Exception as e:
+        logger.error(f"list_plugin_registry error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/plugins/<plugin_name>/enable', methods=['POST'])
+def enable_plugin(plugin_name: str):
+    """Enable a plugin by name"""
+    try:
+        if not bridge.is_ready():
+            return jsonify({"success": False, "error": "Bridge server not ready"}), 503
+
+        from core.services.plugin_registry_service import get_plugin_registry_service
+
+        registry = get_plugin_registry_service()
+        plugin = registry.get_plugin_by_name(plugin_name)
+        if not plugin:
+            return jsonify({"success": False, "error": f"Plugin '{plugin_name}' not found"}), 404
+
+        plugin_id = str(plugin.get("plugin_id"))
+        success = registry.enable_plugin(plugin_id)
+
+        if success:
+            # Try to load the plugin if not already loaded
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loaded = loop.run_until_complete(load_single_plugin(plugin_name))
+            loop.close()
+            return jsonify({"success": True, "loaded": loaded})
+        else:
+            return jsonify({"success": False, "error": "Failed to enable plugin"}), 500
+
+    except Exception as e:
+        logger.error(f"enable_plugin error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/plugins/<plugin_name>/disable', methods=['POST'])
+def disable_plugin(plugin_name: str):
+    """Disable a plugin by name"""
+    try:
+        if not bridge.is_ready():
+            return jsonify({"success": False, "error": "Bridge server not ready"}), 503
+
+        from core.services.plugin_registry_service import get_plugin_registry_service
+
+        registry = get_plugin_registry_service()
+        plugin = registry.get_plugin_by_name(plugin_name)
+        if not plugin:
+            return jsonify({"success": False, "error": f"Plugin '{plugin_name}' not found"}), 404
+
+        plugin_id = str(plugin.get("plugin_id"))
+        success = registry.disable_plugin(plugin_id)
+
+        if success:
+            # Unload from tool_manager
+            async def unload():
+                return await bridge.orchestrator.tool_manager.unload_tool(plugin_name)
+
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                loop.run_until_complete(unload())
+            except Exception:
+                pass
+            loop.close()
+            return jsonify({"success": True})
+        else:
+            return jsonify({"success": False, "error": "Failed to disable plugin"}), 500
+
+    except Exception as e:
+        logger.error(f"disable_plugin error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/plugins/<plugin_name>/reload', methods=['POST'])
+def reload_plugin(plugin_name: str):
+    """Hot-reload a plugin from Blob Storage"""
+    try:
+        if not bridge.is_ready():
+            return jsonify({"success": False, "error": "Bridge server not ready"}), 503
+
+        from core.services.plugin_registry_service import get_plugin_registry_service
+
+        registry = get_plugin_registry_service()
+
+        async def do_reload():
+            downloaded = await registry.reload_plugin(plugin_name)
+            if not downloaded:
+                return False, "Download/integrity check failed"
+            # Unload existing version
+            try:
+                await bridge.orchestrator.tool_manager.unload_tool(plugin_name)
+            except Exception:
+                pass
+            # Load fresh version
+            loaded = await load_single_plugin(plugin_name)
+            return loaded, "OK" if loaded else "Load failed after download"
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        success, msg = loop.run_until_complete(do_reload())
+        loop.close()
+
+        if success:
+            return jsonify({"success": True, "message": f"Plugin '{plugin_name}' reloaded"})
+        else:
+            return jsonify({"success": False, "error": msg}), 500
+
+    except Exception as e:
+        logger.error(f"reload_plugin error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/plugins/<plugin_name>', methods=['DELETE'])
+def delete_plugin_endpoint(plugin_name: str):
+    """Remove plugin from DB + Blob + local"""
+    try:
+        if not bridge.is_ready():
+            return jsonify({"success": False, "error": "Bridge server not ready"}), 503
+
+        from core.services.plugin_registry_service import get_plugin_registry_service
+
+        registry = get_plugin_registry_service()
+        plugin = registry.get_plugin_by_name(plugin_name)
+        if not plugin:
+            return jsonify({"success": False, "error": f"Plugin '{plugin_name}' not found"}), 404
+
+        # Unload from tool_manager first
+        async def unload():
+            try:
+                await bridge.orchestrator.tool_manager.unload_tool(plugin_name)
+            except Exception:
+                pass
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(unload())
+        loop.close()
+
+        plugin_id = str(plugin.get("plugin_id"))
+        success, msg = registry.delete_plugin(plugin_id)
+
+        if success:
+            return jsonify({"success": True, "message": msg})
+        else:
+            return jsonify({"success": False, "error": msg}), 500
+
+    except Exception as e:
+        logger.error(f"delete_plugin_endpoint error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
@@ -1731,7 +1965,8 @@ def install_plugin(plugin_name):
                     author=tool_meta.get("author"),
                     capabilities=capabilities,
                     dependencies=tool_meta.get("dependencies", []),
-                    tags=set(tool_meta.get("tags", []))
+                    tags=set(tool_meta.get("tags", [])),
+                    usage_patterns=tool_meta.get("usage_patterns", [])
                 )
                 
                 # Create tool configuration
@@ -3341,22 +3576,15 @@ def save_card_values(card_id):
 
 
 async def auto_load_enabled_plugins():
-    """Auto-load all enabled plugins at startup, filtered by application_id"""
+    """Auto-load all enabled plugins at startup (no filtering - per-request filtering via X-Application-Id header)"""
     try:
-        # Get application_id from orchestrator
-        application_id = getattr(bridge.orchestrator, 'application_id', None)
-
-        if application_id:
-            logger.info(f"🔌 Auto-loading enabled plugins for application: {application_id}")
-        else:
-            logger.info("🔌 Auto-loading ALL enabled plugins (no application filter)")
+        logger.info("🔌 Auto-loading ALL enabled plugins (per-request filtering via X-Application-Id header)")
 
         plugins_dir = Path("./plugins")
         if not plugins_dir.exists():
             return
 
         loaded_count = 0
-        skipped_count = 0
 
         for plugin_dir in plugins_dir.iterdir():
             if plugin_dir.is_dir() and not plugin_dir.name.startswith('.'):
@@ -3368,30 +3596,47 @@ async def auto_load_enabled_plugins():
                     if manifest.get("enabled", False):
                         plugin_name = manifest.get("name", plugin_dir.name)
                         plugin_app_id = manifest.get("application_id", None)
+                        logger.info(f"Loading plugin: {plugin_name} (app: {plugin_app_id or 'global'})")
 
-                        # Application filter logic:
-                        # - If server has no application_id: load ALL plugins
-                        # - If plugin has no application_id: load for ALL applications (global tool)
-                        # - Otherwise: only load if application_id matches
-                        should_load = (
-                            application_id is None or  # Server accepts all
-                            plugin_app_id is None or   # Plugin is global
-                            plugin_app_id == application_id  # Match
-                        )
+                        success = await load_single_plugin(plugin_name)
+                        if success:
+                            loaded_count += 1
+                        else:
+                            logger.warning(f"Failed to auto-load plugin: {plugin_name}")
 
-                        if should_load:
-                            logger.info(f"Loading plugin: {plugin_name} (app: {plugin_app_id or 'global'})")
+        logger.info(f"✅ Phase 1: Auto-loaded {loaded_count} local plugins (all applications)")
 
+        # Phase 2: Load remote plugins from DB registry (Azure only)
+        try:
+            from core.config.azure_config import is_azure_environment
+            from core.services.plugin_registry_service import get_plugin_registry_service
+
+            if is_azure_environment():
+                registry = get_plugin_registry_service()
+                db_plugins = registry.list_plugins(is_enabled=True)
+                already_loaded = {d.name for d in plugins_dir.iterdir() if d.is_dir() and not d.name.startswith('.')}
+                remote_count = 0
+
+                for plugin in db_plugins:
+                    plugin_name = plugin.get("name")
+                    if plugin_name and plugin_name not in already_loaded:
+                        logger.info(f"Downloading remote plugin from registry: {plugin_name}")
+                        downloaded = await registry.reload_plugin(plugin_name)
+                        if downloaded:
                             success = await load_single_plugin(plugin_name)
                             if success:
-                                loaded_count += 1
+                                remote_count += 1
                             else:
-                                logger.warning(f"Failed to auto-load plugin: {plugin_name}")
+                                logger.warning(f"Failed to load remote plugin: {plugin_name}")
                         else:
-                            skipped_count += 1
-                            logger.debug(f"⏭️ Skipping plugin {plugin_name} (app: {plugin_app_id}, server: {application_id})")
+                            logger.warning(f"Failed to download remote plugin: {plugin_name}")
 
-        logger.info(f"✅ Auto-loaded {loaded_count} enabled plugins, skipped {skipped_count} (application filter)")
+                if remote_count > 0:
+                    logger.info(f"✅ Phase 2: Loaded {remote_count} remote plugins from DB registry")
+        except ImportError:
+            logger.debug("Azure config not available, skipping Phase 2 remote plugin loading")
+        except Exception as e2:
+            logger.warning(f"Phase 2 remote plugin loading failed (non-critical): {e2}")
 
     except Exception as e:
         logger.error(f"❌ Plugin auto-loading failed: {e}")
@@ -3416,10 +3661,23 @@ async def load_single_plugin(plugin_name):
             tool_config = config_data.get("tool_configuration", {})
         else:
             tool_meta = manifest
+            # Build config dict with module loading info + defaults from schema
+            config_dict = {}
+            if manifest.get("module_path"):
+                config_dict["module_path"] = manifest["module_path"]
+            if manifest.get("class_name"):
+                config_dict["class_name"] = manifest["class_name"]
+            if manifest.get("plugin_type"):
+                config_dict["plugin_type"] = manifest["plugin_type"]
+            # Extract default values from configuration_schema properties
+            schema_props = manifest.get("configuration_schema", {}).get("properties", {})
+            for key, prop in schema_props.items():
+                if "default" in prop:
+                    config_dict[key] = prop["default"]
             tool_config = {
                 "tool_name": plugin_name,
                 "enabled": True,
-                "config": manifest.get("configuration_schema", {})
+                "config": config_dict
             }
         
         # Create metadata and config objects (same as install_plugin)
@@ -3447,7 +3705,8 @@ async def load_single_plugin(plugin_name):
             capabilities=capabilities,
             author=tool_meta.get("author"),
             dependencies=tool_meta.get("dependencies", []),
-            tags=set(tool_meta.get("tags", []))
+            tags=set(tool_meta.get("tags", [])),
+            application_id=manifest.get("application_id", None)
         )
         
         configuration = ToolConfiguration(

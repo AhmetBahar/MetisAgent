@@ -1,0 +1,93 @@
+{
+  "name": "axis_alarm_tool",
+  "display_name": "Axis Alarm Manager",
+  "description": "AI-powered alarm management for Axis - monitor, acknowledge, and analyze alarms",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_alarm_tool.axis_alarm_tool",
+  "class_name": "AxisAlarmTool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "category": "alarm",
+
+  "capabilities": [
+    {
+      "name": "list_active_alarms",
+      "description": "List all active/unconfirmed alarms",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer", "default": 1},
+          "severity": {"type": "string", "enum": ["Low", "Medium", "High", "Critical"]}
+        }
+      }
+    },
+    {
+      "name": "get_alarm",
+      "description": "Get details of a specific alarm",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "alarm_id": {"type": "integer"}
+        },
+        "required": ["alarm_id"]
+      }
+    },
+    {
+      "name": "confirm_alarm",
+      "description": "Acknowledge/confirm an alarm",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "alarm_id": {"type": "integer"},
+          "user_id": {"type": "string"},
+          "notes": {"type": "string", "description": "Confirmation notes"}
+        },
+        "required": ["alarm_id"]
+      }
+    },
+    {
+      "name": "get_alarm_history",
+      "description": "Get alarm history for a tag or time period",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_id": {"type": "integer"},
+          "start_date": {"type": "string", "description": "Start date (ISO format)"},
+          "end_date": {"type": "string", "description": "End date (ISO format)"},
+          "company_id": {"type": "integer", "default": 1}
+        }
+      }
+    },
+    {
+      "name": "get_alarm_stats",
+      "description": "Get alarm statistics (counts by severity, status)",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer", "default": 1},
+          "period": {"type": "string", "enum": ["day", "week", "month"], "default": "day"}
+        }
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["axis", "alarm", "monitoring", "alert", "industrial"]
+}

@@ -69,11 +69,18 @@ class LLMTool(BaseTool):
                 "default_model": "gpt-4o-mini"
             },
             "anthropic": {
-                "name": "Anthropic", 
+                "name": "Anthropic",
                 "api_key_name": "anthropic_api_key",
                 "base_url": "https://api.anthropic.com/v1",
                 "models": ["claude-3-7-sonnet-latest", "claude-3-5-sonnet-20241022", "claude-3-haiku-20240307"],
                 "default_model": "claude-3-7-sonnet-latest"
+            },
+            "lmstudio": {
+                "name": "LMStudio (Local)",
+                "api_key_name": None,  # No API key needed for local LMStudio
+                "base_url": "http://192.168.1.104:1234/v1",
+                "models": ["google/gemma-3n-e4b", "microsoft/phi-4", "microsoft/phi-4-mini-reasoning", "nvidia/nemotron-3-nano", "llama4-dolphin-8b"],
+                "default_model": "google/gemma-3n-e4b"
             }
         }
         
@@ -160,14 +167,16 @@ class LLMTool(BaseTool):
                 )
             
             provider_config = self.providers[provider]
-            
-            # Get API key from encrypted storage
-            api_key = await self._get_api_key(user_id, provider)
-            if not api_key:
-                return AgentResult(
-                    success=False,
-                    error=f"API key not found for {provider}. Please configure API key in user settings."
-                )
+
+            # Get API key from encrypted storage (skip for lmstudio - no API key needed)
+            api_key = None
+            if provider != "lmstudio":
+                api_key = await self._get_api_key(user_id, provider)
+                if not api_key:
+                    return AgentResult(
+                        success=False,
+                        error=f"API key not found for {provider}. Please configure API key in user settings."
+                    )
             
             # Use default model if not specified
             if not model:
@@ -228,6 +237,9 @@ class LLMTool(BaseTool):
                 response = await self._call_openai(api_key, provider_config, model, conversation)
             elif provider == "anthropic":
                 response = await self._call_anthropic(api_key, provider_config, model, conversation)
+            elif provider == "lmstudio":
+                # LMStudio uses OpenAI-compatible API, no API key needed
+                response = await self._call_lmstudio(provider_config, model, conversation)
             else:
                 return AgentResult(success=False, error=f"Provider '{provider}' not implemented")
             
@@ -300,8 +312,11 @@ class LLMTool(BaseTool):
         try:
             from ..services.settings_service import SettingsService
             settings_service = SettingsService()
-            
+
             api_key_name = self.providers[provider]['api_key_name']
+            if api_key_name is None:
+                return None  # Provider doesn't need API key (e.g., lmstudio)
+
             api_key_data = await settings_service.get_user_setting(user_id, api_key_name)
             
             if api_key_data:
@@ -372,6 +387,67 @@ class LLMTool(BaseTool):
             logger.error(f"OpenAI API call failed: {e}")
             return {"success": False, "error": str(e)}
     
+    async def _call_lmstudio(self, provider_config: Dict, model: str, conversation: List[Dict]) -> Dict:
+        """Call LMStudio API (OpenAI-compatible, no API key needed)"""
+        try:
+            headers = {
+                "Content-Type": "application/json"
+            }
+
+            # Convert conversation format for LMStudio (OpenAI-compatible)
+            messages = []
+            for msg in conversation:
+                messages.append({
+                    "role": msg["role"],
+                    "content": msg["content"]
+                })
+
+            payload = {
+                "model": model,
+                "messages": messages,
+                "temperature": 0.7,
+                "max_tokens": 2000
+            }
+
+            start_time = datetime.now()
+            logger.info(f"🖥️ Calling LMStudio: model={model}, base_url={provider_config['base_url']}")
+            response = requests.post(
+                f"{provider_config['base_url']}/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=120  # Longer timeout for local LLM
+            )
+            response_time = (datetime.now() - start_time).total_seconds()
+
+            if response.status_code == 200:
+                data = response.json()
+                content = data["choices"][0]["message"]["content"]
+                logger.info(f"✅ LMStudio response received in {response_time:.2f}s")
+
+                return {
+                    "success": True,
+                    "content": content,
+                    "usage": data.get("usage", {}),
+                    "response_time": response_time
+                }
+            else:
+                error_detail = response.text
+                logger.error(f"LMStudio API error: {response.status_code} - {error_detail}")
+                return {
+                    "success": False,
+                    "error": f"LMStudio API error: {response.status_code} - {error_detail}"
+                }
+
+        except requests.exceptions.Timeout:
+            logger.error("LMStudio request timed out (120s)")
+            return {"success": False, "error": "LMStudio request timed out - local model may be slow"}
+        except requests.exceptions.ConnectionError:
+            logger.error(f"LMStudio connection failed: {provider_config['base_url']}")
+            return {"success": False, "error": f"Cannot connect to LMStudio at {provider_config['base_url']}"}
+        except Exception as e:
+            logger.error(f"LMStudio API call failed: {e}")
+            return {"success": False, "error": str(e)}
+
     async def _call_anthropic(self, api_key: str, provider_config: Dict, model: str, conversation: List[Dict]) -> Dict:
         """Call Anthropic API"""
         try:

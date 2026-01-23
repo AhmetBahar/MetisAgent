@@ -1,0 +1,131 @@
+{
+  "name": "axis_energy_tool",
+  "display_name": "Axis Energy Optimization",
+  "description": "AI-powered Energy Management - consumption tracking, optimization profiles, carbon footprint, cost analysis",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_energy_tool.axis_energy_tool",
+  "class_name": "AxisEnergyTool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "category": "energy",
+
+  "capabilities": [
+    {
+      "name": "get_dashboard",
+      "description": "Get Energy dashboard with consumption overview and KPIs",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "list_profiles",
+      "description": "List energy profiles/zones",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "get_profile",
+      "description": "Get energy profile details",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {"profile_id": {"type": "integer"}},
+        "required": ["profile_id"]
+      }
+    },
+    {
+      "name": "create_profile",
+      "description": "Create a new energy profile",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "energy_type": {"type": "string", "enum": ["Electricity", "Gas", "Water", "Steam"]},
+          "target_consumption": {"type": "number"},
+          "cost_per_unit": {"type": "number"}
+        },
+        "required": ["name", "energy_type"]
+      }
+    },
+    {
+      "name": "get_consumption",
+      "description": "Get energy consumption data",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "profile_id": {"type": "integer"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"},
+          "interval": {"type": "string", "enum": ["hourly", "daily", "weekly", "monthly"]}
+        }
+      }
+    },
+    {
+      "name": "record_consumption",
+      "description": "Record energy consumption reading",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "profile_id": {"type": "integer"},
+          "value": {"type": "number"},
+          "timestamp": {"type": "string"}
+        },
+        "required": ["profile_id", "value"]
+      }
+    },
+    {
+      "name": "get_cost_analysis",
+      "description": "Get energy cost analysis",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "profile_id": {"type": "integer"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "get_carbon_footprint",
+      "description": "Get carbon footprint/emissions data",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "get_optimization_recommendations",
+      "description": "Get AI-powered energy optimization recommendations",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "profile_id": {"type": "integer"}
+        }
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["axis", "energy", "optimization", "carbon", "sustainability", "industrial"]
+}

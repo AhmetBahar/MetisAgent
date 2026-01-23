@@ -70,6 +70,7 @@ class ExecutionContext(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
     timeout_seconds: Optional[int] = None
     system_prompt: Optional[str] = None
+    application_id: Optional[str] = None
 
     class Config:
         frozen = True

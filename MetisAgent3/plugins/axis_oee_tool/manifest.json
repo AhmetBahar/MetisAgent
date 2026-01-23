@@ -1,0 +1,119 @@
+{
+  "name": "axis_oee_tool",
+  "display_name": "Axis OEE (Overall Equipment Effectiveness)",
+  "description": "AI-powered OEE tracking - availability, performance, quality metrics, downtime tracking and analysis",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_oee_tool.axis_oee_tool",
+  "class_name": "AxisOEETool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "category": "oee",
+
+  "capabilities": [
+    {
+      "name": "get_dashboard",
+      "description": "Get OEE dashboard with availability, performance, quality metrics",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plant_id": {"type": "integer", "description": "Filter by plant"}
+        }
+      }
+    },
+    {
+      "name": "get_oee_by_machine",
+      "description": "Get OEE metrics for a specific machine",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "machine_id": {"type": "integer"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        },
+        "required": ["machine_id"]
+      }
+    },
+    {
+      "name": "list_downtime_categories",
+      "description": "List downtime categories (planned, unplanned, etc.)",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "list_downtime_reasons",
+      "description": "List downtime reasons with optional category filter",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "category_id": {"type": "integer"}
+        }
+      }
+    },
+    {
+      "name": "record_downtime",
+      "description": "Record a downtime event",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "machine_id": {"type": "integer"},
+          "reason_id": {"type": "integer"},
+          "start_time": {"type": "string"},
+          "end_time": {"type": "string"},
+          "notes": {"type": "string"}
+        },
+        "required": ["machine_id", "reason_id", "start_time"]
+      }
+    },
+    {
+      "name": "get_downtime_analysis",
+      "description": "Analyze downtime patterns and Pareto",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "machine_id": {"type": "integer"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "list_machines",
+      "description": "List all machines/equipment for OEE tracking",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "get_shift_report",
+      "description": "Get OEE report for a shift",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "machine_id": {"type": "integer"},
+          "shift_id": {"type": "integer"},
+          "date": {"type": "string"}
+        }
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["axis", "oee", "effectiveness", "downtime", "availability", "industrial"]
+}

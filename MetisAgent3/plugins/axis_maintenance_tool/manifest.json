@@ -1,0 +1,141 @@
+{
+  "name": "axis_maintenance_tool",
+  "display_name": "Axis Maintenance Management",
+  "description": "AI-powered Maintenance - predictive maintenance, health scoring, spare parts, autonomous maintenance (TPM)",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_maintenance_tool.axis_maintenance_tool",
+  "class_name": "AxisMaintenanceTool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "category": "maintenance",
+
+  "capabilities": [
+    {
+      "name": "get_dashboard",
+      "description": "Get Maintenance dashboard with equipment health overview",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "get_health_score",
+      "description": "Get equipment health score and status",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "equipment_id": {"type": "integer"}
+        },
+        "required": ["equipment_id"]
+      }
+    },
+    {
+      "name": "get_predictive_alerts",
+      "description": "Get predictive maintenance alerts",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "equipment_id": {"type": "integer"},
+          "severity": {"type": "string", "enum": ["Low", "Medium", "High", "Critical"]}
+        }
+      }
+    },
+    {
+      "name": "list_spare_parts",
+      "description": "List spare parts inventory",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "equipment_id": {"type": "integer"},
+          "low_stock_only": {"type": "boolean", "default": false}
+        }
+      }
+    },
+    {
+      "name": "update_spare_part",
+      "description": "Update spare part quantity",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "part_id": {"type": "integer"},
+          "quantity_change": {"type": "integer", "description": "Positive for add, negative for use"},
+          "reason": {"type": "string"}
+        },
+        "required": ["part_id", "quantity_change"]
+      }
+    },
+    {
+      "name": "list_autonomous_tasks",
+      "description": "List TPM/autonomous maintenance tasks",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "equipment_id": {"type": "integer"},
+          "status": {"type": "string", "enum": ["Pending", "Completed", "Overdue"]}
+        }
+      }
+    },
+    {
+      "name": "complete_autonomous_task",
+      "description": "Complete an autonomous maintenance task",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "integer"},
+          "result": {"type": "string", "enum": ["OK", "NotOK", "NeedsAttention"]},
+          "notes": {"type": "string"}
+        },
+        "required": ["task_id", "result"]
+      }
+    },
+    {
+      "name": "get_maintenance_history",
+      "description": "Get maintenance history for equipment",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "equipment_id": {"type": "integer"},
+          "maintenance_type": {"type": "string"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "schedule_maintenance",
+      "description": "Schedule a maintenance activity",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "equipment_id": {"type": "integer"},
+          "maintenance_type": {"type": "string"},
+          "scheduled_date": {"type": "string"},
+          "description": {"type": "string"},
+          "estimated_duration": {"type": "integer", "description": "Minutes"}
+        },
+        "required": ["equipment_id", "maintenance_type", "scheduled_date"]
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["axis", "maintenance", "predictive", "health", "tpm", "spare-parts", "industrial"]
+}

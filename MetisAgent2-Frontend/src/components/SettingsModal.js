@@ -25,11 +25,14 @@ const SettingsModal = ({ isOpen, onClose, currentUser }) => {
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState('');
     const [cardLoadingStates, setCardLoadingStates] = useState({});
+    const [plugins, setPlugins] = useState([]);
+    const [togglingPlugin, setTogglingPlugin] = useState(null);
 
     useEffect(() => {
         if (isOpen) {
             loadCategories();
             loadCards();
+            loadPlugins();
         }
     }, [isOpen]);
 
@@ -97,6 +100,55 @@ const SettingsModal = ({ isOpen, onClose, currentUser }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const loadPlugins = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/plugins`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const result = await response.json();
+            if (result.success) {
+                setPlugins(result.plugins || []);
+            }
+        } catch (error) {
+            console.error('Plugins load error:', error);
+        }
+    };
+
+    const togglePlugin = async (pluginName, currentEnabled) => {
+        try {
+            setTogglingPlugin(pluginName);
+            const response = await fetch(`${API_BASE_URL}/api/plugins/${pluginName}/toggle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ enabled: !currentEnabled })
+            });
+            const result = await response.json();
+            if (result.success) {
+                showMessage(`${pluginName} ${result.enabled ? 'aktif edildi' : 'devre dışı bırakıldı'}`);
+                setPlugins(plugins.map(p =>
+                    p.name === pluginName ? { ...p, is_enabled: result.enabled } : p
+                ));
+            } else {
+                showMessage(`Hata: ${result.error}`, 'error');
+            }
+        } catch (error) {
+            showMessage(`Hata: ${error.message}`, 'error');
+        } finally {
+            setTogglingPlugin(null);
+        }
+    };
+
+    const getPluginIcon = (name) => {
+        const icons = {
+            'rmms_scada_tool': '📊', 'rmms_code_tool': '💻', 'rmms_datasource_tool': '🔌',
+            'rmms_task_tool': '📋', 'rmms_workflow_tool': '🔄', 'google_tool': '🔵',
+            'ecostar_tool': '🔥', 'test_tool': '🧪'
+        };
+        return icons[name] || '🔧';
     };
 
     const handleCardAction = async (cardId, actionId, parameters = {}) => {
@@ -297,6 +349,41 @@ const SettingsModal = ({ isOpen, onClose, currentUser }) => {
 
                     {/* Cards Content */}
                     <div className="settings-modal-content">
+                        {/* Plugin Management Section */}
+                        {(activeCategory === 'tools' || activeCategory === 'all') && plugins.length > 0 && (
+                            <div className="plugins-section">
+                                <div className="category-header">
+                                    <span className="category-icon">🔌</span>
+                                    <h3 className="category-title">Plugin Yönetimi</h3>
+                                </div>
+                                <p className="plugins-info">
+                                    LMStudio gibi local LLM'ler için context limiti önemlidir. Sadece ihtiyacınız olan plugin'leri aktif tutun.
+                                </p>
+                                <div className="plugins-grid">
+                                    {plugins.map(plugin => (
+                                        <div key={plugin.name} className={`plugin-item ${plugin.is_enabled ? 'enabled' : 'disabled'}`}>
+                                            <div className="plugin-left">
+                                                <span className="plugin-icon">{getPluginIcon(plugin.name)}</span>
+                                                <div className="plugin-info">
+                                                    <span className="plugin-name">{plugin.display_name || plugin.name}</span>
+                                                    <span className="plugin-caps">{(plugin.capabilities || []).length} yetenek</span>
+                                                </div>
+                                            </div>
+                                            <label className="toggle-switch">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={plugin.is_enabled}
+                                                    onChange={() => togglePlugin(plugin.name, plugin.is_enabled)}
+                                                    disabled={togglingPlugin === plugin.name}
+                                                />
+                                                <span className="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {loading ? (
                             <div className="loading-state">
                                 <div className="loading-spinner"></div>

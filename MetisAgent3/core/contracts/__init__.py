@@ -22,6 +22,7 @@ from .base_types import (
 from .tool_contracts import (
     ToolType,
     CapabilityType,
+    RiskLevel as ToolRiskLevel,  # Also available from tool_envelope
     ToolCapability,
     ToolMetadata,
     ToolConfiguration,
@@ -88,6 +89,18 @@ from .reasoning_contracts import (
     ReasoningResult,
     AdaptationContext,
     LLMInteraction
+)
+
+from .tool_envelope import (
+    RiskLevel,
+    ConfirmationPolicy,
+    OperationType,
+    IdempotencyStatus,
+    ToolCallContext,
+    ToolCallEnvelope,
+    ToolCallResult,
+    IdempotencyRecord,
+    ToolMetadataExtended
 )
 
 __all__ = [
@@ -165,5 +178,16 @@ __all__ = [
     "ValidationResult",
     "ReasoningResult",
     "AdaptationContext",
-    "LLMInteraction"
+    "LLMInteraction",
+
+    # Tool Envelope Contracts
+    "RiskLevel",
+    "ConfirmationPolicy",
+    "OperationType",
+    "IdempotencyStatus",
+    "ToolCallContext",
+    "ToolCallEnvelope",
+    "ToolCallResult",
+    "IdempotencyRecord",
+    "ToolMetadataExtended"
 ]

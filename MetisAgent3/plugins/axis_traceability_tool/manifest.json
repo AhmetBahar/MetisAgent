@@ -1,0 +1,127 @@
+{
+  "name": "axis_traceability_tool",
+  "display_name": "Axis Traceability",
+  "description": "AI-powered Product Traceability - batch tracking, genealogy, material consumption, process history",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_traceability_tool.axis_traceability_tool",
+  "class_name": "AxisTraceabilityTool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "category": "traceability",
+
+  "capabilities": [
+    {
+      "name": "get_dashboard",
+      "description": "Get Traceability dashboard overview",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "trace_batch",
+      "description": "Trace a batch - get full genealogy and history",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "batch_number": {"type": "string"}
+        },
+        "required": ["batch_number"]
+      }
+    },
+    {
+      "name": "list_batches",
+      "description": "List batches with filters",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "product_id": {"type": "integer"},
+          "status": {"type": "string"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "create_batch",
+      "description": "Create/register a new batch",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "batch_number": {"type": "string"},
+          "product_id": {"type": "integer"},
+          "quantity": {"type": "number"},
+          "production_date": {"type": "string"},
+          "expiry_date": {"type": "string"}
+        },
+        "required": ["batch_number", "product_id", "quantity"]
+      }
+    },
+    {
+      "name": "record_consumption",
+      "description": "Record material consumption for a batch",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "batch_number": {"type": "string"},
+          "material_batch": {"type": "string"},
+          "quantity": {"type": "number"}
+        },
+        "required": ["batch_number", "material_batch", "quantity"]
+      }
+    },
+    {
+      "name": "get_genealogy",
+      "description": "Get batch genealogy (parent/child batches)",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "batch_number": {"type": "string"},
+          "direction": {"type": "string", "enum": ["forward", "backward", "both"], "default": "both"}
+        },
+        "required": ["batch_number"]
+      }
+    },
+    {
+      "name": "get_process_history",
+      "description": "Get process history for a batch",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {"batch_number": {"type": "string"}},
+        "required": ["batch_number"]
+      }
+    },
+    {
+      "name": "recall_simulation",
+      "description": "Simulate a recall - find all affected batches",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "batch_number": {"type": "string"},
+          "reason": {"type": "string"}
+        },
+        "required": ["batch_number"]
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["axis", "traceability", "batch", "genealogy", "recall", "industrial"]
+}

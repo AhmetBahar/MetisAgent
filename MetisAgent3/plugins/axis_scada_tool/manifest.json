@@ -1,0 +1,155 @@
+{
+  "name": "axis_scada_tool",
+  "display_name": "Axis SCADA Manager",
+  "description": "AI-powered SCADA page management for Axis - create pages, manage widgets, configure tag bindings",
+  "version": "1.2.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_scada_tool.axis_scada_tool",
+  "class_name": "AxisScadaTool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "risk_level": "medium",
+  "requires_confirmation": false,
+  "category": "scada",
+  "min_compatible_version": "1.0.0",
+  "deprecated": false,
+  "computer_mode": null,
+
+  "capabilities": [
+    {
+      "name": "list_pages",
+      "description": "List all SCADA pages for the company",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer", "description": "Company ID (default: 1)"}
+        }
+      }
+    },
+    {
+      "name": "get_page",
+      "description": "Get a specific SCADA page by ID with all widgets and configuration",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer", "description": "Page ID to retrieve"}
+        },
+        "required": ["page_id"]
+      }
+    },
+    {
+      "name": "create_page",
+      "description": "Create a new SCADA page",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_name": {"type": "string", "description": "Name of the page"},
+          "description": {"type": "string", "description": "Page description"},
+          "company_id": {"type": "integer", "default": 1},
+          "page_config": {"type": "object", "description": "Initial page configuration"}
+        },
+        "required": ["page_name"]
+      }
+    },
+    {
+      "name": "update_page",
+      "description": "Update an existing SCADA page",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer"},
+          "page_name": {"type": "string"},
+          "description": {"type": "string"},
+          "page_config": {"type": "object"}
+        },
+        "required": ["page_id"]
+      }
+    },
+    {
+      "name": "delete_page",
+      "description": "Delete a SCADA page",
+      "capability_type": "write",
+      "risk_level": "high",
+      "requires_confirmation": true,
+      "is_idempotent": false,
+      "side_effects": ["deletes_scada_page", "removes_widgets"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": {"type": "integer"}
+        },
+        "required": ["page_id"]
+      }
+    },
+    {
+      "name": "get_tags",
+      "description": "Get all tags with current values for monitoring",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer", "default": 1},
+          "channel_id": {"type": "integer", "description": "Filter by channel"}
+        }
+      }
+    },
+    {
+      "name": "read_tag",
+      "description": "Read current value of a specific tag",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_id": {"type": "integer"}
+        },
+        "required": ["tag_id"]
+      }
+    },
+    {
+      "name": "write_tag",
+      "description": "Write a value to a tag",
+      "capability_type": "write",
+      "risk_level": "high",
+      "requires_confirmation": true,
+      "is_idempotent": true,
+      "side_effects": ["modifies_tag_value", "triggers_plc_write"],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_id": {"type": "integer"},
+          "value": {"type": "string", "description": "Value to write"}
+        },
+        "required": ["tag_id", "value"]
+      }
+    },
+    {
+      "name": "get_custom_widgets",
+      "description": "Get all custom widget definitions",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "company_id": {"type": "integer", "default": 1}
+        }
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["axis", "scada", "design", "widgets", "pages", "automation", "industrial"]
+}

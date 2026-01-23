@@ -9,6 +9,7 @@ Manages plugin lifecycle:
 """
 
 import json
+import hashlib
 import logging
 import os
 import zipfile
@@ -113,6 +114,9 @@ class PluginRegistryService:
                 if not is_safe:
                     return False, f"Security validation failed: {security_msg}"
 
+                # Calculate SHA256 of the ZIP for integrity verification
+                sha256_hash = hashlib.sha256(plugin_zip).hexdigest()
+
                 # Upload to Blob Storage (in Azure environment)
                 blob_path = f"{plugin_name}/{plugin_name}.zip"
                 if is_azure_environment():
@@ -138,7 +142,11 @@ class PluginRegistryService:
                     "tool_config": tool_config,
                     "capabilities": capabilities,
                     "status": "active",
-                    "is_enabled": True
+                    "is_enabled": True,
+                    "sha256_hash": sha256_hash,
+                    "application_id": manifest.get("application_id"),
+                    "author": manifest.get("author"),
+                    "description": manifest.get("description")
                 }
 
                 if metadata:
@@ -315,16 +323,27 @@ class PluginRegistryService:
             logger.error(f"Failed to delete plugin: {e}")
             return False, str(e)
 
+    def list_by_application(self, application_id: str,
+                            is_enabled: Optional[bool] = None) -> List[Dict[str, Any]]:
+        """List plugins filtered by application_id"""
+        if is_azure_environment():
+            return self.storage.list_plugins_by_application(application_id, is_enabled=is_enabled)
+        else:
+            plugins = self._list_local_plugins()
+            return [p for p in plugins if p.get("application_id") == application_id]
+
     # Plugin loading
-    async def reload_plugin(self, plugin_name: str, tool_manager) -> bool:
+    async def reload_plugin(self, plugin_name: str, tool_manager=None) -> bool:
         """
         Hot-reload a plugin
 
-        Downloads from blob storage and reloads in tool_manager.
+        Downloads from blob storage, verifies SHA256 integrity, and extracts locally.
+        Returns True so caller can invoke load_single_plugin.
         """
         try:
             plugin = self.get_plugin_by_name(plugin_name)
             if not plugin:
+                logger.error(f"Plugin {plugin_name} not found in registry")
                 return False
 
             # In Azure, download fresh copy from blob
@@ -338,9 +357,22 @@ class PluginRegistryService:
                         blob=plugin["blob_path"]
                     )
 
+                    download_stream = blob_client.download_blob()
+                    zip_bytes = download_stream.readall()
+
+                    # Verify SHA256 integrity if hash is stored
+                    expected_hash = plugin.get("sha256_hash")
+                    if expected_hash:
+                        actual_hash = hashlib.sha256(zip_bytes).hexdigest()
+                        if actual_hash != expected_hash:
+                            logger.error(
+                                f"SHA256 mismatch for {plugin_name}: "
+                                f"expected={expected_hash}, actual={actual_hash}"
+                            )
+                            return False
+
                     with open(zip_path, "wb") as f:
-                        download_stream = blob_client.download_blob()
-                        f.write(download_stream.readall())
+                        f.write(zip_bytes)
 
                     # Extract to plugins directory
                     local_path = self._local_plugin_dir / plugin_name
@@ -350,10 +382,7 @@ class PluginRegistryService:
                     with zipfile.ZipFile(zip_path, "r") as zf:
                         zf.extractall(local_path)
 
-            # Reload in tool_manager
-            # This would require tool_manager to support unload/reload
-            # For now, just log success
-            logger.info(f"Plugin {plugin_name} reloaded successfully")
+            logger.info(f"Plugin {plugin_name} downloaded and extracted successfully")
             return True
 
         except Exception as e:

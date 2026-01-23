@@ -206,6 +206,8 @@ class RMMSScadaTool(BaseTool):
                 result = await self._analyze_page(input_data)
             elif capability == "find_widget":
                 result = await self._find_widget(input_data)
+            elif capability == "resize_widgets_by_type":
+                result = await self._resize_widgets_by_type(input_data)
             else:
                 result = {"success": False, "error": f"Unknown capability: {capability}"}
 
@@ -350,32 +352,49 @@ class RMMSScadaTool(BaseTool):
 
         components = page_config.get("components", [])
 
-        # Count components by type
+        # Count components by type and collect IDs
         component_counts = {}
+        components_by_type = {}  # Store widget IDs grouped by type
         tag_bindings = []
 
         for comp in components:
             comp_type = comp.get("type", "unknown")
+            comp_id = comp.get("id")
             component_counts[comp_type] = component_counts.get(comp_type, 0) + 1
+
+            # Collect widget IDs by type
+            if comp_type not in components_by_type:
+                components_by_type[comp_type] = []
+            if comp_id:
+                comp_info = {
+                    "id": comp_id,
+                    "width": comp.get("width") or comp.get("props", {}).get("width"),
+                    "height": comp.get("height") or comp.get("props", {}).get("height"),
+                    "x": comp.get("x"),
+                    "y": comp.get("y")
+                }
+                components_by_type[comp_type].append(comp_info)
 
             # Extract tag bindings
             props = comp.get("props", {})
             tag_id = props.get("tagBinding") or props.get("tagId")
             if tag_id:
                 tag_bindings.append({
-                    "componentId": comp.get("id"),
+                    "componentId": comp_id,
                     "componentType": comp_type,
-                    "componentName": props.get("text") or props.get("label") or comp.get("id"),
+                    "componentName": props.get("text") or props.get("label") or comp_id,
                     "tagId": tag_id
                 })
 
-        # Build summary
+        # Build summary with widget IDs for each type
         summary = {
             "pageId": page.get("pageId"),
             "pageName": page.get("pageName"),
             "companyId": page.get("companyId"),
             "totalComponents": len(components),
             "componentCounts": component_counts,
+            "componentsByType": components_by_type,  # Include widget IDs grouped by type
+            "boxWidgetIds": [c["id"] for c in components_by_type.get("box", [])],  # Convenience: list of box IDs
             "tagBindings": tag_bindings,
             "tagBindingCount": len(tag_bindings)
         }
@@ -383,6 +402,14 @@ class RMMSScadaTool(BaseTool):
         # Create human-readable message
         counts_str = ", ".join([f"{count} {ctype}" for ctype, count in component_counts.items()])
         message = f"Page '{page.get('pageName')}' (ID: {page_id}) has {len(components)} components: {counts_str}. {len(tag_bindings)} components are bound to tags."
+
+        # Add box dimensions to message if boxes exist
+        boxes = components_by_type.get("box", [])
+        if boxes:
+            box_dims = [f"{b['id']}({b.get('width', '?')}x{b.get('height', '?')})" for b in boxes[:5]]
+            if len(boxes) > 5:
+                box_dims.append(f"...and {len(boxes)-5} more")
+            message += f" Box dimensions: {', '.join(box_dims)}."
 
         # DEBUG: Log the exact counts
         logger.info(f"🔍 DEBUG analyze_page result - componentCounts: {component_counts}")
@@ -562,6 +589,9 @@ class RMMSScadaTool(BaseTool):
             page_data["isHomePage"] = params["is_home_page"]
         if "page_config" in params:
             page_data["pageConfig"] = json.dumps(params["page_config"]) if isinstance(params["page_config"], dict) else params["page_config"]
+        elif "pageConfig" in page_data and isinstance(page_data["pageConfig"], dict):
+            # Ensure pageConfig is always a string for API
+            page_data["pageConfig"] = json.dumps(page_data["pageConfig"])
 
         headers = await self._get_auth_headers(company_id)
         async with httpx.AsyncClient(timeout=self.timeout) as client:
@@ -939,19 +969,16 @@ class RMMSScadaTool(BaseTool):
 
         headers = await self._get_auth_headers(company_id)
         async with httpx.AsyncClient(timeout=self.timeout) as client:
-            url = f"{self.api_base_url}/Tags"
-            query_params = []
-            if company_id:
-                query_params.append(f"companyId={company_id}")
-            if search:
-                query_params.append(f"search={search}")
-            if query_params:
-                url += "?" + "&".join(query_params)
+            url = f"{self.api_base_url}/Tags/GetTagList"
+            body = {"companyId": str(company_id)}
 
-            response = await client.get(url, headers=headers)
+            response = await client.post(url, json=body, headers=headers)
 
             if response.status_code == 200:
                 tags = response.json()
+                if search:
+                    search_lower = search.lower()
+                    tags = [t for t in tags if search_lower in (t.get("tagName", "") or "").lower() or search_lower in (t.get("tagName2", "") or "").lower()]
                 if limit:
                     tags = tags[:limit]
                 return {
@@ -1118,5 +1145,118 @@ class RMMSScadaTool(BaseTool):
                     "component_count": len(added_widgets)
                 },
                 "message": f"Added custom widget '{custom_widget.get('widgetName')}' with {len(added_widgets)} sub-components"
+            }
+        return result
+
+    async def _resize_widgets_by_type(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Resize all widgets of a specific type on a page by a percentage.
+
+        This is a bulk operation that resizes all widgets of the specified type
+        (e.g., 'box', 'button', 'text-label') by the given percentage.
+
+        Args:
+            page_id: The page ID
+            company_id: Optional company ID (defaults to 4)
+            widget_type: Type of widgets to resize (e.g., 'box')
+            increase_percent: Percentage to INCREASE size (e.g., 50 means 50% bigger, 100 means double)
+        """
+        page_id = params.get("page_id")
+        company_id = params.get("company_id", self.default_company_id)
+        widget_type = params.get("widget_type", "box")
+
+        # Support both increase_percent and scale_percent for backwards compatibility
+        increase_percent = params.get("increase_percent") or params.get("scale_percent", 50)
+
+        if not page_id:
+            return {"success": False, "error": "page_id is required"}
+
+        # Convert increase_percent to multiplier
+        # 50 means 50% bigger = multiply by 1.5
+        # -40 means 40% smaller = multiply by 0.6
+        # 100 means double = multiply by 2.0
+        # -50 means half size = multiply by 0.5
+        if isinstance(increase_percent, str):
+            increase_percent = float(increase_percent.replace('%', ''))
+
+        # Prevent values that would make widgets disappear (< -90%)
+        if increase_percent <= -90:
+            logger.warning(f"⚠️ increase_percent ({increase_percent}) too small, limiting to -90")
+            increase_percent = -90
+
+        scale_multiplier = (100 + increase_percent) / 100.0
+        action = "shrinking" if increase_percent < 0 else "enlarging"
+        logger.info(f"📏 {action} widgets: increase_percent={increase_percent}, scale_multiplier={scale_multiplier}")
+        
+        # Get page data
+        existing = await self._get_page({"page_id": page_id, "company_id": company_id})
+        if not existing.get("success"):
+            return existing
+        
+        page_data = existing["data"]
+        page_config = page_data.get("pageConfig", {})
+        if isinstance(page_config, str):
+            page_config = json.loads(page_config)
+        
+        components = page_config.get("components", [])
+        updated_count = 0
+        updated_widgets = []
+        
+        for comp in components:
+            if comp.get("type") == widget_type:
+                # Get current dimensions - check both root and props
+                props = comp.get("props", {})
+                old_width = comp.get("width") or props.get("width") or 100
+                old_height = comp.get("height") or props.get("height") or 100
+
+                # Handle string values
+                if isinstance(old_width, str):
+                    old_width = float(old_width.replace('px', ''))
+                if isinstance(old_height, str):
+                    old_height = float(old_height.replace('px', ''))
+
+                # Calculate new dimensions
+                new_width = int(old_width * scale_multiplier)
+                new_height = int(old_height * scale_multiplier)
+                logger.info(f"📐 Widget {comp.get('id')}: {old_width}x{old_height} -> {new_width}x{new_height}")
+
+                # Update component - set both root AND props for compatibility
+                comp["width"] = new_width
+                comp["height"] = new_height
+                if "props" in comp:
+                    comp["props"]["width"] = new_width
+                    comp["props"]["height"] = new_height
+                
+                updated_widgets.append({
+                    "id": comp.get("id"),
+                    "old_size": f"{old_width}x{old_height}",
+                    "new_size": f"{new_width}x{new_height}"
+                })
+                updated_count += 1
+        
+        if updated_count == 0:
+            return {
+                "success": False, 
+                "error": f"No widgets of type '{widget_type}' found on page {page_id}"
+            }
+        
+        # Save the updated page
+        page_config["components"] = components
+        result = await self._update_page({
+            "page_id": page_id,
+            "company_id": company_id,
+            "page_config": page_config
+        })
+        
+        if result.get("success"):
+            return {
+                "success": True,
+                "data": {
+                    "page_id": page_id,
+                    "widget_type": widget_type,
+                    "increase_percent": increase_percent,
+                    "updated_count": updated_count,
+                    "updated_widgets": updated_widgets
+                },
+                "message": f"Increased size of {updated_count} '{widget_type}' widgets by {increase_percent}% on page {page_id}"
             }
         return result

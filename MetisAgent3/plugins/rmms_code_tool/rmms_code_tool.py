@@ -33,7 +33,7 @@ class RMMSCodeTool(BaseTool):
 
     def __init__(self, metadata: ToolMetadata, config: ToolConfiguration):
         super().__init__(metadata, config)
-        self.api_base_url = config.config.get("api_base_url", "https://rmms-metis-engine.azurewebsites.net/api")
+        self.api_base_url = config.config.get("api_base_url", "https://rmms-metis-engine.azurewebsites.net/api").rstrip("/")
         self.timeout = config.config.get("timeout", 30)
 
         # Supported languages and their templates
@@ -225,24 +225,27 @@ public class RMMSCode
             return {"success": False, "error": "code_id or code_name is required"}
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
-            if code_name:
-                # Get by name - endpoint is /Task/code/{companyId}/{name} (singular)
+            if code_name and "." not in code_name:
+                # Direct get by name (only if no dot - dots cause IIS 404)
                 url = f"{self.api_base_url}/Task/code/{company_id}/{code_name}"
                 response = await client.get(url)
                 if response.status_code == 200:
                     code = response.json()
+                    code["name"] = code_name
                     return {"success": True, "data": code, "message": f"Retrieved code '{code_name}'"}
-                return {"success": False, "error": f"Code not found: {code_name}"}
-            else:
-                # Get by ID - first list then find
-                url = f"{self.api_base_url}/Task/codes/{company_id}"
-                response = await client.get(url)
-                if response.status_code == 200:
-                    codes = response.json()
+
+            # Fallback: list all codes and find by name or ID
+            url = f"{self.api_base_url}/Task/codes/{company_id}"
+            response = await client.get(url)
+            if response.status_code == 200:
+                codes = response.json()
+                if code_name:
+                    code = next((c for c in codes if c.get("name") == code_name), None)
+                else:
                     code = next((c for c in codes if str(c.get("id")) == str(code_id)), None)
-                    if code:
-                        return {"success": True, "data": code, "message": f"Retrieved code {code_id}"}
-                return {"success": False, "error": f"Code not found: {code_id}"}
+                if code:
+                    return {"success": True, "data": code, "message": f"Retrieved code '{code_name or code_id}'"}
+            return {"success": False, "error": f"Code not found: {code_name or code_id}"}
 
     async def _create_code(self, params: Dict[str, Any]) -> Dict[str, Any]:
         name = params.get("name")
@@ -290,26 +293,45 @@ public class RMMSCode
 
     async def _update_code(self, params: Dict[str, Any]) -> Dict[str, Any]:
         code_id = params.get("code_id")
-        if not code_id:
-            return {"success": False, "error": "code_id is required"}
+        code_name = params.get("code_name") or params.get("name")
+        company_id = params.get("company_id")
 
-        existing = await self._get_code({"code_id": code_id})
+        if not company_id:
+            return {"success": False, "error": "company_id is required"}
+
+        if not code_id and not code_name:
+            return {"success": False, "error": "code_id or code_name is required"}
+
+        existing = await self._get_code({"code_id": code_id, "code_name": code_name, "company_id": company_id})
         if not existing.get("success"):
             return existing
 
         code_data = existing["data"]
-        for field in ["name", "code", "description"]:
-            if field in params:
-                code_data[field] = params[field]
-        if "is_active" in params:
-            code_data["isActive"] = params["is_active"]
-        code_data["updatedAt"] = datetime.now().isoformat()
+        old_name = code_data.get("name", "")
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.put(f"{self.api_base_url}/Codes/{code_id}", json=code_data)
-            if response.status_code == 200:
-                return {"success": True, "data": code_data, "message": f"Updated code {code_id}"}
-            return {"success": False, "error": f"Failed to update code: {response.text}"}
+        new_name = params.get("new_name") or old_name
+        new_code = params.get("code") or code_data.get("code", "")
+        language = params.get("language") or code_data.get("language", "python")
+        inputs = params.get("inputs", [])
+        outputs = params.get("outputs", [])
+
+        # Delete old code
+        delete_result = await self._delete_code({"code_name": old_name, "company_id": company_id})
+        if not delete_result.get("success"):
+            return {"success": False, "error": f"Failed to delete old code for update: {delete_result.get('error')}"}
+
+        # Re-create with updated fields
+        create_result = await self._create_code({
+            "name": new_name,
+            "company_id": company_id,
+            "language": language,
+            "code": new_code,
+            "inputs": inputs,
+            "outputs": outputs
+        })
+        if create_result.get("success"):
+            return {"success": True, "data": create_result.get("data"), "message": f"Updated code '{old_name}' successfully"}
+        return {"success": False, "error": f"Failed to recreate code after delete: {create_result.get('error')}"}
 
     async def _delete_code(self, params: Dict[str, Any]) -> Dict[str, Any]:
         code_name = params.get("code_name") or params.get("name") or params.get("code_id")

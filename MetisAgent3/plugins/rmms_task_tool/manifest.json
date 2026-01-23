@@ -5,14 +5,16 @@
   "version": "1.0.0",
   "author": "MetisAgent3",
   "tool_type": "plugin",
-  "enabled": true,
+  "enabled": false,
   "plugin_type": "python_module",
   "module_path": "plugins.rmms_task_tool.rmms_task_tool",
   "class_name": "RMMSTaskTool",
-
   "dependencies": [
     "httpx"
   ],
+
+  "application_id": "rmms",
+  "category": "workorder",
 
   "capabilities": [
     {
@@ -22,11 +24,33 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "company_id": {"type": "integer"},
-          "status": {"type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"]},
-          "priority": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
-          "assigned_to": {"type": "integer"},
-          "category": {"type": "string"}
+          "company_id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "assigned_to": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "string"
+          }
         }
       }
     },
@@ -37,9 +61,13 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "task_id": {"type": "integer"}
+          "task_id": {
+            "type": "integer"
+          }
         },
-        "required": ["task_id"]
+        "required": [
+          "task_id"
+        ]
       }
     },
     {
@@ -49,17 +77,50 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "title": {"type": "string", "description": "Task title"},
-          "description": {"type": "string"},
-          "company_id": {"type": "integer"},
-          "priority": {"type": "string", "enum": ["low", "medium", "high", "critical"], "default": "medium"},
-          "category": {"type": "string", "description": "Task category"},
-          "assigned_to": {"type": "integer", "description": "User ID to assign"},
-          "due_date": {"type": "string", "description": "Due date (ISO format)"},
-          "related_tag_id": {"type": "integer", "description": "Related tag ID"},
-          "related_page_id": {"type": "integer", "description": "Related SCADA page ID"}
+          "title": {
+            "type": "string",
+            "description": "Task title"
+          },
+          "description": {
+            "type": "string"
+          },
+          "company_id": {
+            "type": "integer"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "category": {
+            "type": "string",
+            "description": "Task category"
+          },
+          "assigned_to": {
+            "type": "integer",
+            "description": "User ID to assign"
+          },
+          "due_date": {
+            "type": "string",
+            "description": "Due date (ISO format)"
+          },
+          "related_tag_id": {
+            "type": "integer",
+            "description": "Related tag ID"
+          },
+          "related_page_id": {
+            "type": "integer",
+            "description": "Related SCADA page ID"
+          }
         },
-        "required": ["title"]
+        "required": [
+          "title"
+        ]
       },
       "examples": [
         {
@@ -80,14 +141,34 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "task_id": {"type": "integer"},
-          "title": {"type": "string"},
-          "description": {"type": "string"},
-          "priority": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
-          "category": {"type": "string"},
-          "due_date": {"type": "string"}
+          "task_id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string"
+          }
         },
-        "required": ["task_id"]
+        "required": [
+          "task_id"
+        ]
       }
     },
     {
@@ -97,9 +178,13 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "task_id": {"type": "integer"}
+          "task_id": {
+            "type": "integer"
+          }
         },
-        "required": ["task_id"]
+        "required": [
+          "task_id"
+        ]
       }
     },
     {
@@ -109,10 +194,17 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "task_id": {"type": "integer"},
-          "user_id": {"type": "integer"}
+          "task_id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "integer"
+          }
         },
-        "required": ["task_id", "user_id"]
+        "required": [
+          "task_id",
+          "user_id"
+        ]
       }
     },
     {
@@ -122,11 +214,27 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "task_id": {"type": "integer"},
-          "status": {"type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"]},
-          "notes": {"type": "string", "description": "Optional status change notes"}
+          "task_id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional status change notes"
+          }
         },
-        "required": ["task_id", "status"]
+        "required": [
+          "task_id",
+          "status"
+        ]
       }
     },
     {
@@ -136,11 +244,21 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "task_id": {"type": "integer"},
-          "comment": {"type": "string"},
-          "author": {"type": "string", "default": "MetisAgent"}
+          "task_id": {
+            "type": "integer"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string",
+            "default": "MetisAgent"
+          }
         },
-        "required": ["task_id", "comment"]
+        "required": [
+          "task_id",
+          "comment"
+        ]
       }
     },
     {
@@ -150,9 +268,13 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "task_id": {"type": "integer"}
+          "task_id": {
+            "type": "integer"
+          }
         },
-        "required": ["task_id"]
+        "required": [
+          "task_id"
+        ]
       }
     },
     {
@@ -162,28 +284,41 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "task_id": {"type": "integer"}
+          "task_id": {
+            "type": "integer"
+          }
         },
-        "required": ["task_id"]
+        "required": [
+          "task_id"
+        ]
       }
     },
     {
       "name": "get_statuses",
       "description": "Get available task statuses",
       "capability_type": "read",
-      "input_schema": {"type": "object", "properties": {}}
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
     },
     {
       "name": "get_priorities",
       "description": "Get available task priorities",
       "capability_type": "read",
-      "input_schema": {"type": "object", "properties": {}}
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
     },
     {
       "name": "get_categories",
       "description": "Get available task categories",
       "capability_type": "read",
-      "input_schema": {"type": "object", "properties": {}}
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
     },
     {
       "name": "get_users",
@@ -192,19 +327,39 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "company_id": {"type": "integer"}
+          "company_id": {
+            "type": "integer"
+          }
         }
       }
     }
   ],
-
   "configuration_schema": {
     "type": "object",
     "properties": {
-      "api_base_url": {"type": "string", "default": "https://app-rmmsapi.azurewebsites.net/api"},
-      "timeout": {"type": "integer", "default": 30}
+      "api_base_url": {
+        "type": "string",
+        "default": "https://app-rmmsapi.azurewebsites.net/api"
+      },
+      "timeout": {
+        "type": "integer",
+        "default": 30
+      }
     }
   },
+  "usage_patterns": [
+    "To assign a task: list_tasks → find task_id → assign_task(task_id, user_id)",
+    "To update task progress: list_tasks(status=in_progress) → get_task(task_id) → update_status(task_id, new_status)",
+    "To comment on a task: list_tasks → find task_id → add_comment(task_id, comment)",
+    "To create and assign: get_users → get target user_id → create_task(title, assignee=user_id)"
+  ],
 
-  "tags": ["rmms", "task", "management", "workflow", "assignment", "industrial"]
+  "tags": [
+    "rmms",
+    "task",
+    "management",
+    "workflow",
+    "assignment",
+    "industrial"
+  ]
 }

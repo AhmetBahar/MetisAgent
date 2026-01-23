@@ -210,6 +210,8 @@ class GraphMemoryService(IMemoryService, IGraphService, IConversationService):
                 ],
                 "dependencies": metadata.dependencies,
                 "tags": list(metadata.tags),
+                "application_id": getattr(metadata, 'application_id', None),
+                "usage_patterns": getattr(metadata, 'usage_patterns', []),
                 "last_updated": datetime.now().isoformat()
             }
             

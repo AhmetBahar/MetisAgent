@@ -1,0 +1,122 @@
+{
+  "name": "axis_mes_tool",
+  "display_name": "Axis MES (Manufacturing Execution)",
+  "description": "AI-powered Manufacturing Execution System - production orders, work centers, production tracking, bottleneck analysis",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_mes_tool.axis_mes_tool",
+  "class_name": "AxisMESTool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "category": "mes",
+
+  "capabilities": [
+    {
+      "name": "get_dashboard",
+      "description": "Get MES dashboard with production overview, active orders, and KPIs",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "list_orders",
+      "description": "List production orders with optional filters",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "status": {"type": "string", "enum": ["Planned", "InProgress", "Completed", "Cancelled"]},
+          "line_id": {"type": "integer", "description": "Filter by production line"}
+        }
+      }
+    },
+    {
+      "name": "get_order",
+      "description": "Get production order details",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {"order_id": {"type": "integer"}},
+        "required": ["order_id"]
+      }
+    },
+    {
+      "name": "create_order",
+      "description": "Create a new production order",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "product_id": {"type": "integer"},
+          "line_id": {"type": "integer"},
+          "planned_quantity": {"type": "integer"},
+          "planned_start": {"type": "string", "description": "ISO date"},
+          "planned_end": {"type": "string"},
+          "priority": {"type": "integer", "default": 1}
+        },
+        "required": ["product_id", "line_id", "planned_quantity"]
+      }
+    },
+    {
+      "name": "start_order",
+      "description": "Start a production order",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {"order_id": {"type": "integer"}},
+        "required": ["order_id"]
+      }
+    },
+    {
+      "name": "complete_order",
+      "description": "Complete a production order",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "order_id": {"type": "integer"},
+          "produced_quantity": {"type": "integer"},
+          "scrap_quantity": {"type": "integer", "default": 0}
+        },
+        "required": ["order_id", "produced_quantity"]
+      }
+    },
+    {
+      "name": "list_work_centers",
+      "description": "List all work centers/production lines",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "get_bottleneck_analysis",
+      "description": "Analyze production bottlenecks",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "list_products",
+      "description": "List all products/materials",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["axis", "mes", "manufacturing", "production", "industrial"]
+}

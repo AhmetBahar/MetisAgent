@@ -24,10 +24,14 @@ const Settings = () => {
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState('');
     const [cardLoadingStates, setCardLoadingStates] = useState({});
+    const [plugins, setPlugins] = useState([]);
+    const [pluginsLoading, setPluginsLoading] = useState(false);
+    const [togglingPlugin, setTogglingPlugin] = useState(null);
 
     useEffect(() => {
         loadCategories();
         loadCards();
+        loadPlugins();
     }, []);
 
     useEffect(() => {
@@ -45,7 +49,7 @@ const Settings = () => {
 
     const loadCategories = async () => {
         try {
-            const result = await apiService.api.get('/settings/categories');
+            const result = await apiService.api.get('/settings/cards/categories');
             
             if (result.data.success) {
                 setCategories(result.data.categories || []);
@@ -62,15 +66,15 @@ const Settings = () => {
     const loadCards = async () => {
         try {
             setLoading(true);
-            
+
             const params = {};
             if (activeCategory !== 'all') {
                 params.category = activeCategory;
             }
             params.user_id = 'ahmetb@minor.com.tr'; // Add logged-in user_id parameter
-            
+
             const result = await apiService.api.get('/settings/cards', { params });
-            
+
             if (result.data.success) {
                 setCards(result.data.cards || []);
             } else {
@@ -83,6 +87,55 @@ const Settings = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const loadPlugins = async () => {
+        try {
+            setPluginsLoading(true);
+            console.log('🔌 Loading plugins...');
+            const result = await apiService.api.get('/plugins');
+            console.log('🔌 Plugins API response:', result.data);
+            if (result.data.success) {
+                console.log('🔌 Setting plugins:', result.data.plugins?.length || 0, 'plugins');
+                setPlugins(result.data.plugins || []);
+            } else {
+                console.error('🔌 Plugins load failed:', result.data.error);
+            }
+        } catch (error) {
+            console.error('🔌 Plugins load error:', error);
+        } finally {
+            setPluginsLoading(false);
+        }
+    };
+
+    const togglePlugin = async (pluginName, currentEnabled) => {
+        try {
+            setTogglingPlugin(pluginName);
+            const result = await apiService.api.post(`/plugins/${pluginName}/toggle`, {
+                enabled: !currentEnabled
+            });
+            if (result.data.success) {
+                showMessage(`${pluginName} ${result.data.enabled ? 'aktif edildi' : 'devre dışı bırakıldı'}`);
+                setPlugins(plugins.map(p =>
+                    p.name === pluginName ? { ...p, is_enabled: result.data.enabled } : p
+                ));
+            } else {
+                showMessage(`Hata: ${result.data.error}`, 'error');
+            }
+        } catch (error) {
+            showMessage(`Hata: ${error.message}`, 'error');
+        } finally {
+            setTogglingPlugin(null);
+        }
+    };
+
+    const getPluginIcon = (name) => {
+        const icons = {
+            'rmms_scada_tool': '📊', 'rmms_code_tool': '💻', 'rmms_datasource_tool': '🔌',
+            'rmms_task_tool': '📋', 'rmms_workflow_tool': '🔄', 'google_tool': '🔵',
+            'ecostar_tool': '🔥', 'test_tool': '🧪'
+        };
+        return icons[name] || '🔧';
     };
 
     const handleCardAction = async (cardId, actionId, parameters = {}) => {
@@ -274,18 +327,56 @@ const Settings = () => {
 
                 {/* Cards Content */}
                 <div className="settings-content">
+                    {/* Debug info - remove after testing */}
+                    {console.log('🔍 Render check:', { activeCategory, pluginsLength: plugins.length, showPlugins: (activeCategory === 'tools' || activeCategory === 'all') && plugins.length > 0 })}
+
+                    {/* Plugin Management Section - Show when tools category */}
+                    {(activeCategory === 'tools' || activeCategory === 'all') && plugins.length > 0 && (
+                        <div className="plugins-section">
+                            <div className="category-header">
+                                <span className="category-icon">🔌</span>
+                                <h3 className="category-title">Plugin Yönetimi</h3>
+                            </div>
+                            <p className="plugins-info">
+                                LMStudio gibi local LLM'ler için context limiti önemlidir. Sadece ihtiyacınız olan plugin'leri aktif tutun.
+                            </p>
+                            <div className="plugins-grid">
+                                {plugins.map(plugin => (
+                                    <div key={plugin.name} className={`plugin-item ${plugin.is_enabled ? 'enabled' : 'disabled'}`}>
+                                        <div className="plugin-left">
+                                            <span className="plugin-icon">{getPluginIcon(plugin.name)}</span>
+                                            <div className="plugin-info">
+                                                <span className="plugin-name">{plugin.display_name || plugin.name}</span>
+                                                <span className="plugin-caps">{(plugin.capabilities || []).length} yetenek</span>
+                                            </div>
+                                        </div>
+                                        <label className="toggle-switch">
+                                            <input
+                                                type="checkbox"
+                                                checked={plugin.is_enabled}
+                                                onChange={() => togglePlugin(plugin.name, plugin.is_enabled)}
+                                                disabled={togglingPlugin === plugin.name}
+                                            />
+                                            <span className="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {loading ? (
                         <div className="loading-state">
                             <div className="loading-spinner"></div>
                             <p>Ayarlar yükleniyor...</p>
                         </div>
-                    ) : cards.length === 0 ? (
+                    ) : cards.length === 0 && (activeCategory !== 'tools' && activeCategory !== 'all') ? (
                         <div className="empty-state">
                             <div className="empty-icon">📋</div>
                             <h3>Henüz ayar bulunamadı</h3>
                             <p>Bu kategoride henüz ayar kartı bulunmuyor.</p>
                         </div>
-                    ) : (
+                    ) : cards.length > 0 && (
                         <div className="cards-container">
                             {activeCategory === 'all' ? (
                                 // Group by categories when showing all

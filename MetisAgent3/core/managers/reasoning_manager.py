@@ -59,7 +59,8 @@ class LLMService(ILLMService):
         # Provider-aware defaults to avoid provider/model mismatch
         self._provider_defaults = {
             'openai': 'gpt-4o-mini',
-            'anthropic': 'claude-3-7-sonnet-latest'
+            'anthropic': 'claude-3-7-sonnet-latest',
+            'lmstudio': 'google/gemma-3n-e4b'
         }
 
         # Import LLM tool for real API calls with storage injection
@@ -437,6 +438,125 @@ JSON format:
             logger.error(f"Express classification error: {e}")
             return {"mode": "NORMAL", "error": str(e)}
 
+    def _detect_intent_and_filter_tools(self, user_request: str, user_tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Dynamic Tool Loading - Detect intent from query and return only relevant tools.
+        This dramatically reduces context size for local LLMs with limited context windows.
+
+        Returns filtered list of tools based on detected intent keywords.
+        """
+        request_lower = user_request.lower()
+
+        # Tool-to-keywords mapping
+        tool_keywords = {
+            'google_tool': [
+                'email', 'mail', 'gmail', 'gönder', 'e-posta', 'eposta',
+                'calendar', 'takvim', 'etkinlik', 'toplantı', 'randevu',
+                'drive', 'dosya', 'döküman', 'document',
+                'google', 'oauth'
+            ],
+            'rmms_scada_tool': [
+                'scada', 'sayfa', 'page', 'widget', 'ekran', 'panel',
+                'görsel', 'tasarım', 'design', 'tag', 'etiket', 'binding'
+            ],
+            'rmms_task_tool': [
+                'görev', 'task', 'iş', 'atama', 'assign', 'todo',
+                'takip', 'priority', 'öncelik', 'durum', 'status'
+            ],
+            'rmms_workflow_tool': [
+                'workflow', 'iş akışı', 'akış', 'otomasyon', 'automation',
+                'node', 'bağlantı', 'connection', 'trigger', 'tetik'
+            ],
+            'rmms_code_tool': [
+                'kod', 'code', 'script', 'python', 'csharp', 'c#',
+                'programlama', 'program', 'fonksiyon', 'function'
+            ],
+            'rmms_datasource_tool': [
+                'datasource', 'veri kaynağı', 'database', 'veritabanı',
+                'opc', 'modbus', 'mqtt', 'bağlantı', 'connection'
+            ],
+            'ecostar_tool': [
+                'ecostar', 'brülör', 'kazan', 'ürün', 'product',
+                'servis', 'service', 'katalog', 'catalog'
+            ],
+            'axis_alarm_tool': [
+                'alarm', 'alarmlar', 'alert', 'uyarı', 'uyarılar',
+                'aktif alarm', 'onay', 'confirm', 'acknowledge',
+                'severity', 'kritik', 'critical', 'warning'
+            ],
+            'axis_workorder_tool': [
+                'iş emri', 'work order', 'workorder', 'bakım emri',
+                'iş emirleri', 'açık emir', 'emir oluştur', 'maintenance order',
+                'arıza', 'tamir', 'repair', 'open order'
+            ],
+            'axis_oee_tool': [
+                'oee', 'verimlilik', 'effectiveness', 'availability',
+                'performans', 'performance', 'duruş', 'downtime',
+                'arıza süresi', 'üretim verimliliği', 'kalite oranı'
+            ],
+            'axis_traceability_tool': [
+                'izlenebilirlik', 'traceability', 'batch', 'parti',
+                'lot', 'genealogy', 'soy ağacı', 'geri çağırma', 'recall',
+                'hammadde', 'tüketim', 'consumption'
+            ],
+            'axis_datascience_tool': [
+                'tahmin', 'forecast', 'anomaly', 'anomali', 'analiz',
+                'korelasyon', 'correlation', 'trend', 'ml', 'yapay zeka',
+                'clustering', 'kümeleme', 'sağlık skoru', 'health score',
+                'erken uyarı', 'early warning', 'root cause'
+            ],
+            'axis_quality_tool': [
+                'kalite', 'quality', 'inspection', 'muayene', 'denetim',
+                'spc', 'kontrol kartı', 'defect', 'hata', 'kusur',
+                'kalite kontrol', 'şablon', 'template'
+            ],
+            'axis_maintenance_tool': [
+                'bakım', 'maintenance', 'predictive', 'önleyici',
+                'yedek parça', 'spare part', 'tpm', 'otonom bakım',
+                'ekipman sağlığı', 'health', 'planlı bakım', 'scheduled'
+            ],
+            'axis_mes_tool': [
+                'üretim', 'production', 'mes', 'üretim emri',
+                'production order', 'iş merkezi', 'work center',
+                'darboğaz', 'bottleneck', 'sipariş', 'order'
+            ],
+            'axis_scada_tool': [
+                'scada', 'sayfa', 'page', 'widget', 'ekran',
+                'tag', 'etiket', 'değer yaz', 'write tag', 'read tag',
+                'tag değeri', 'canlı veri', 'live data'
+            ],
+            'axis_energy_tool': [
+                'enerji', 'energy', 'tüketim', 'consumption',
+                'karbon', 'carbon', 'emisyon', 'emission',
+                'maliyet', 'cost', 'optimizasyon', 'optimization',
+                'sürdürülebilirlik', 'sustainability'
+            ]
+        }
+
+        # Detect which tools are needed based on keywords
+        detected_tools = set()
+        for tool_name, keywords in tool_keywords.items():
+            for keyword in keywords:
+                if keyword in request_lower:
+                    detected_tools.add(tool_name)
+                    break
+
+        # If no specific tools detected, this is likely a chat request
+        # Return empty list - LLM will handle it as CHAT mode
+        if not detected_tools:
+            logger.info(f"🎯 Dynamic Tool Loading: No tools detected for query, CHAT mode likely")
+            return []
+
+        # Filter user_tools to only include detected tools
+        filtered_tools = [
+            tool for tool in user_tools
+            if tool.get('name') in detected_tools
+        ]
+
+        logger.info(f"🎯 Dynamic Tool Loading: Detected {len(filtered_tools)} tools: {[t.get('name') for t in filtered_tools]}")
+
+        return filtered_tools
+
     async def unified_plan_request(self, user_request: str, user_tools: List[Dict[str, Any]],
                                    context: Optional[ExecutionContext] = None,
                                    provider: str = None,
@@ -461,14 +581,47 @@ JSON format:
         try:
             start_time = datetime.now()
 
-            # Format tools for LLM - with truncation
-            tools_text = self._format_tools_complete(user_tools)
+            # Select provider first to determine formatting
+            selected_provider = provider or self.current_provider
+            if not selected_provider:
+                raise ValueError("No LLM provider selected")
 
-            # Use lightweight conversation memory context instead of full history
-            # This prevents context_length_exceeded errors from large previous responses
-            memory_context = conversation_memory_context if conversation_memory_context else ""
+            # Use compact format for local LLMs (lmstudio) to stay within context limits
+            is_local_llm = selected_provider == 'lmstudio'
 
-            unified_prompt = f"""You are an intelligent assistant that helps users accomplish tasks.
+            # For cloud LLMs: pass ALL tools, let LLM decide CHAT vs TOOL
+            # For local LLMs: use keyword pre-filtering to fit context window
+            if is_local_llm:
+                filtered_tools = self._detect_intent_and_filter_tools(user_request, user_tools)
+                logger.info(f"🎯 Local LLM: Keyword-filtered {len(user_tools)} → {len(filtered_tools)} tools")
+            else:
+                filtered_tools = user_tools
+                logger.info(f"🎯 Cloud LLM: Passing all {len(filtered_tools)} tools for intent classification")
+
+            # Format tools - compact for local LLMs, full for cloud providers
+            # Use filtered_tools instead of user_tools
+            if is_local_llm:
+                tools_text = self._format_tools_compact(filtered_tools)
+                # Shorter memory context for local LLMs
+                memory_context = conversation_memory_context[:200] if conversation_memory_context else ""
+            else:
+                tools_text = self._format_tools_complete(filtered_tools)
+                memory_context = conversation_memory_context if conversation_memory_context else ""
+
+            # Build prompt - shorter for local LLMs
+            if is_local_llm:
+                # Compact prompt for local LLMs with limited context
+                unified_prompt = f"""Request: "{user_request}"
+{f'Context: {memory_context}' if memory_context else ''}
+
+Tools: {tools_text}
+
+Respond with ONLY JSON:
+- CHAT mode: {{"mode":"CHAT","response":"answer"}}
+- TOOL mode: {{"mode":"TOOL","workflow":[{{"step_id":"step_1","tool_name":"name","capability":"cap","input_parameters":{{}}}}]}}"""
+            else:
+                # Full prompt for cloud LLMs
+                unified_prompt = f"""You are an intelligent assistant that helps users accomplish tasks.
 
 {memory_context}USER REQUEST: "{user_request}"
 
@@ -510,16 +663,20 @@ For TOOL mode (tools needed):
     ]
 }}
 
-IMPORTANT:
+IMPORTANT RULES:
 - tool_name must match EXACTLY one of the available tools
 - capability must match EXACTLY one of that tool's capabilities
+- input_parameters must include ALL required parameters for the capability
 - Keep workflows simple: 1-3 steps for most requests
-- For CHAT mode, provide a helpful, complete response in the user's language"""
+- For CHAT mode, provide a helpful, complete response in the user's language
 
-            # Select provider
-            selected_provider = provider or self.current_provider
-            if not selected_provider:
-                raise ValueError("No LLM provider selected")
+CHAINING PATTERN:
+- When a capability requires an ID (like page_id, task_id, widget_id) and the user hasn't specified it, add a preceding step to LIST or SEARCH first
+- Example: "sayfadaki widget'ları say" → Step 1: list_pages → Step 2: analyze_page(page_id from step 1)
+- Example: "gauge ekle" → Step 1: get_tags → Step 2: add_widget with tag binding
+- Later steps can reference earlier step results: use "$step_1.page_id" or "result_from_step_1" as parameter values
+- If the user provides a specific ID directly, skip the list step
+- Always check the Usage Patterns section of each tool for common multi-step workflows"""
 
             selected_model = self._provider_defaults.get(selected_provider, self.current_model)
 
@@ -607,50 +764,92 @@ IMPORTANT:
             }
 
     def _format_tools_complete(self, user_tools: List[Dict[str, Any]]) -> str:
-        """Format tools with truncated descriptions to avoid context overflow"""
+        """Format tools with schemas, examples, and chaining guidance for LLM"""
         if not user_tools:
             return "No tools available"
 
         formatted = []
-        max_desc_length = 300  # Truncate long descriptions
-        max_cap_desc_length = 250  # Truncate capability descriptions (increased to include guidance)
 
         for tool in user_tools:
-            # Truncate tool description
-            tool_desc = tool.get('description', 'No description')
-            if len(tool_desc) > max_desc_length:
-                tool_desc = tool_desc[:max_desc_length] + "..."
+            tool_desc = tool.get('description', 'No description')[:300]
 
             tool_lines = [
                 f"## {tool['name']}",
                 f"Description: {tool_desc}"
             ]
 
-            # Capabilities with truncated descriptions
+            # Capabilities with parameters and examples
             if 'capabilities' in tool and tool['capabilities']:
                 tool_lines.append("Capabilities:")
                 for cap in tool['capabilities']:
                     cap_name = cap.get('name', cap.get('capability', 'unknown'))
-                    cap_desc = cap.get('description', 'No description')
-                    # Truncate capability description
-                    if len(cap_desc) > max_cap_desc_length:
-                        cap_desc = cap_desc[:max_cap_desc_length] + "..."
+                    cap_desc = cap.get('description', 'No description')[:250]
                     tool_lines.append(f"  - {cap_name}: {cap_desc}")
 
-                # DEBUG: Log SCADA capabilities
-                if tool['name'] == 'rmms_scada_tool':
-                    cap_names = [c.get('name', 'unknown') for c in tool['capabilities']]
-                    logger.info(f"🔍 DEBUG SCADA capabilities order: {cap_names}")
+                    # Include required parameters
+                    schema = cap.get('input_schema', {})
+                    props = schema.get('properties', {})
+                    required = schema.get('required', [])
+                    if props:
+                        param_parts = []
+                        for pname, pinfo in props.items():
+                            ptype = pinfo.get('type', 'any')
+                            pdesc = pinfo.get('description', '')
+                            req_marker = " (REQUIRED)" if pname in required else ""
+                            param_parts.append(f"{pname}: {ptype}{req_marker}" + (f" - {pdesc}" if pdesc else ""))
+                        tool_lines.append(f"    Parameters: {'; '.join(param_parts)}")
+
+                    # Include examples from manifest
+                    examples = cap.get('examples', [])
+                    if examples:
+                        ex = examples[0]  # First example only to save tokens
+                        ex_input = ex.get('input', {})
+                        if ex_input:
+                            tool_lines.append(f"    Example: {json.dumps(ex_input, ensure_ascii=False)}")
+
+                # Multi-step usage patterns (from manifest)
+                usage_patterns = tool.get('usage_patterns', [])
+                if usage_patterns:
+                    tool_lines.append("  Usage Patterns:")
+                    for pattern in usage_patterns[:3]:
+                        tool_lines.append(f"    - {pattern}")
 
             formatted.append("\n".join(tool_lines))
 
-        result = "\n\n".join(formatted)
+        return "\n\n".join(formatted)
 
-        # DEBUG: Log if analyze_page is in the formatted output
-        if 'rmms_scada_tool' in result:
-            logger.info(f"🔍 DEBUG: analyze_page in output: {'analyze_page' in result}")
+    def _format_tools_compact(self, user_tools: List[Dict[str, Any]], max_tools: int = 4, max_caps: int = 5) -> str:
+        """Format tools in compact format for local LLMs with limited context"""
+        if not user_tools:
+            return "No tools available"
 
-        return result
+        # Priority tools for local LLMs (most commonly used)
+        priority_tools = ['rmms_scada_tool', 'command_executor', 'llm_tool', 'rmms_task_tool']
+
+        # Sort tools by priority
+        sorted_tools = sorted(user_tools, key=lambda t: (
+            0 if t['name'] in priority_tools else 1,
+            priority_tools.index(t['name']) if t['name'] in priority_tools else 999
+        ))
+
+        formatted = []
+        for tool in sorted_tools[:max_tools]:
+            # Only tool name and limited capability names (no descriptions)
+            caps = []
+            if 'capabilities' in tool:
+                caps = [cap.get('name', cap.get('capability', '')) for cap in tool['capabilities'][:max_caps]]
+                if len(tool['capabilities']) > max_caps:
+                    caps.append(f"...+{len(tool['capabilities']) - max_caps} more")
+
+            if caps:
+                formatted.append(f"- {tool['name']}: {', '.join(caps)}")
+            else:
+                formatted.append(f"- {tool['name']}")
+
+        if len(user_tools) > max_tools:
+            formatted.append(f"(+{len(user_tools) - max_tools} more tools)")
+
+        return "\n".join(formatted)
 
 
 class RequestAnalyzer(IRequestAnalyzer):

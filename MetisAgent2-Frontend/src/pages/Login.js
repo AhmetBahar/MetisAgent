@@ -35,20 +35,16 @@ const Login = ({ onLogin }) => {
       const response = await AuthAPI.login(formData.username, formData.password);
       
       if (response.data.success) {
-        setSuccess('Giriş başarılı! Yönlendiriliyorsunuz...');
-        
-        // Call onLogin callback with user data
+        setSuccess('Giriş başarılı!');
+
+        // Call onLogin callback with user data - this will update App.js state
         if (onLogin) {
           onLogin({
             user: response.data.user,
             session_token: response.data.token
           });
         }
-        
-        // Redirect after a short delay
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1000);
+        // No page reload needed - React state handles the transition
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Giriş yapılırken bir hata oluştu');

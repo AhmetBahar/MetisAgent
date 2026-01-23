@@ -5,17 +5,18 @@
   "version": "1.0.0",
   "author": "MetisAgent3",
   "tool_type": "plugin",
-  "enabled": true,
+  "enabled": false,
   "plugin_type": "python_module",
   "module_path": "plugins.rmms_workflow_tool.rmms_workflow_tool",
   "class_name": "RMMSWorkflowTool",
+  "application_id": "rmms",
+  "category": "workflow",
 
   "dependencies": [
     "httpx",
     "json",
     "uuid"
   ],
-
   "capabilities": [
     {
       "name": "list_workflows",
@@ -24,7 +25,9 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "company_id": {"type": "integer"}
+          "company_id": {
+            "type": "integer"
+          }
         }
       }
     },
@@ -35,9 +38,13 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"}
+          "workflow_id": {
+            "type": "integer"
+          }
         },
-        "required": ["workflow_id"]
+        "required": [
+          "workflow_id"
+        ]
       }
     },
     {
@@ -47,14 +54,36 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_name": {"type": "string"},
-          "company_id": {"type": "integer"},
-          "description": {"type": "string"},
-          "trigger_type": {"type": "string", "enum": ["schedule", "tag_change", "manual", "alarm"]},
-          "trigger_properties": {"type": "object"},
-          "is_active": {"type": "boolean", "default": true}
+          "workflow_name": {
+            "type": "string"
+          },
+          "company_id": {
+            "type": "integer"
+          },
+          "description": {
+            "type": "string"
+          },
+          "trigger_type": {
+            "type": "string",
+            "enum": [
+              "schedule",
+              "tag_change",
+              "manual",
+              "alarm"
+            ]
+          },
+          "trigger_properties": {
+            "type": "object"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          }
         },
-        "required": ["workflow_name", "company_id"]
+        "required": [
+          "workflow_name",
+          "company_id"
+        ]
       }
     },
     {
@@ -64,12 +93,22 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"},
-          "workflow_name": {"type": "string"},
-          "description": {"type": "string"},
-          "is_active": {"type": "boolean"}
+          "workflow_id": {
+            "type": "integer"
+          },
+          "workflow_name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
         },
-        "required": ["workflow_id"]
+        "required": [
+          "workflow_id"
+        ]
       }
     },
     {
@@ -79,9 +118,13 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"}
+          "workflow_id": {
+            "type": "integer"
+          }
         },
-        "required": ["workflow_id"]
+        "required": [
+          "workflow_id"
+        ]
       }
     },
     {
@@ -91,14 +134,45 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"},
-          "node_type": {"type": "string", "enum": ["trigger", "condition", "action", "loop", "parallel", "end"]},
-          "node_subtype": {"type": "string"},
-          "position": {"type": "object", "properties": {"x": {"type": "number"}, "y": {"type": "number"}}},
-          "properties": {"type": "object"},
-          "label": {"type": "string"}
+          "workflow_id": {
+            "type": "integer"
+          },
+          "node_type": {
+            "type": "string",
+            "enum": [
+              "trigger",
+              "condition",
+              "action",
+              "loop",
+              "parallel",
+              "end"
+            ]
+          },
+          "node_subtype": {
+            "type": "string"
+          },
+          "position": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            }
+          },
+          "properties": {
+            "type": "object"
+          },
+          "label": {
+            "type": "string"
+          }
         },
-        "required": ["workflow_id", "node_type"]
+        "required": [
+          "workflow_id",
+          "node_type"
+        ]
       },
       "examples": [
         {
@@ -106,7 +180,11 @@
             "workflow_id": 1,
             "node_type": "condition",
             "node_subtype": "tag_compare",
-            "properties": {"tagId": "11497", "operator": ">", "value": "30"},
+            "properties": {
+              "tagId": "11497",
+              "operator": ">",
+              "value": "30"
+            },
             "label": "Check Temperature"
           }
         },
@@ -115,7 +193,10 @@
             "workflow_id": 1,
             "node_type": "action",
             "node_subtype": "set_tag",
-            "properties": {"tagId": "11500", "value": "1"},
+            "properties": {
+              "tagId": "11500",
+              "value": "1"
+            },
             "label": "Turn On Cooling"
           }
         }
@@ -128,11 +209,21 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"},
-          "node_id": {"type": "string"},
-          "updates": {"type": "object"}
+          "workflow_id": {
+            "type": "integer"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "updates": {
+            "type": "object"
+          }
         },
-        "required": ["workflow_id", "node_id", "updates"]
+        "required": [
+          "workflow_id",
+          "node_id",
+          "updates"
+        ]
       }
     },
     {
@@ -142,10 +233,17 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"},
-          "node_id": {"type": "string"}
+          "workflow_id": {
+            "type": "integer"
+          },
+          "node_id": {
+            "type": "string"
+          }
         },
-        "required": ["workflow_id", "node_id"]
+        "required": [
+          "workflow_id",
+          "node_id"
+        ]
       }
     },
     {
@@ -155,13 +253,28 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"},
-          "source_id": {"type": "string"},
-          "target_id": {"type": "string"},
-          "label": {"type": "string"},
-          "condition": {"type": "string", "description": "For conditional branches (true/false)"}
+          "workflow_id": {
+            "type": "integer"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "condition": {
+            "type": "string",
+            "description": "For conditional branches (true/false)"
+          }
         },
-        "required": ["workflow_id", "source_id", "target_id"]
+        "required": [
+          "workflow_id",
+          "source_id",
+          "target_id"
+        ]
       }
     },
     {
@@ -171,18 +284,31 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"},
-          "source_id": {"type": "string"},
-          "target_id": {"type": "string"}
+          "workflow_id": {
+            "type": "integer"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          }
         },
-        "required": ["workflow_id", "source_id", "target_id"]
+        "required": [
+          "workflow_id",
+          "source_id",
+          "target_id"
+        ]
       }
     },
     {
       "name": "get_node_types",
       "description": "Get available node types and their properties",
       "capability_type": "read",
-      "input_schema": {"type": "object", "properties": {}}
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
     },
     {
       "name": "validate_workflow",
@@ -191,9 +317,13 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"}
+          "workflow_id": {
+            "type": "integer"
+          }
         },
-        "required": ["workflow_id"]
+        "required": [
+          "workflow_id"
+        ]
       }
     },
     {
@@ -203,21 +333,44 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "workflow_id": {"type": "integer"},
-          "input_params": {"type": "object"}
+          "workflow_id": {
+            "type": "integer"
+          },
+          "input_params": {
+            "type": "object"
+          }
         },
-        "required": ["workflow_id"]
+        "required": [
+          "workflow_id"
+        ]
       }
     }
   ],
-
   "configuration_schema": {
     "type": "object",
     "properties": {
-      "api_base_url": {"type": "string", "default": "https://app-rmmsapi.azurewebsites.net/api"},
-      "timeout": {"type": "integer", "default": 30}
+      "api_base_url": {
+        "type": "string",
+        "default": "https://app-rmmsapi.azurewebsites.net/api"
+      },
+      "timeout": {
+        "type": "integer",
+        "default": 30
+      }
     }
   },
+  "usage_patterns": [
+    "To add a node to workflow: list_workflows → find workflow_id → get_node_types → add_node(workflow_id, node_type, config)",
+    "To connect nodes: get_workflow(workflow_id) → find source/target node IDs → connect_nodes(workflow_id, source, target)",
+    "To run a workflow: list_workflows → validate_workflow(workflow_id) → execute_workflow(workflow_id)"
+  ],
 
-  "tags": ["rmms", "workflow", "automation", "design", "nodes", "industrial"]
+  "tags": [
+    "rmms",
+    "workflow",
+    "automation",
+    "design",
+    "nodes",
+    "industrial"
+  ]
 }

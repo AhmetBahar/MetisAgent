@@ -5,16 +5,17 @@
   "version": "1.0.0",
   "author": "MetisAgent3",
   "tool_type": "plugin",
-  "enabled": true,
+  "enabled": false,
   "plugin_type": "python_module",
   "module_path": "plugins.rmms_datasource_tool.rmms_datasource_tool",
   "class_name": "RMMSDataSourceTool",
+  "application_id": "rmms",
+  "category": "datasource",
 
   "dependencies": [
     "httpx",
     "json"
   ],
-
   "capabilities": [
     {
       "name": "list_datasources",
@@ -23,7 +24,10 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "company_id": {"type": "integer", "description": "Filter by company ID"}
+          "company_id": {
+            "type": "integer",
+            "description": "Filter by company ID"
+          }
         }
       }
     },
@@ -34,9 +38,14 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "datasource_id": {"type": "integer", "description": "DataSource ID to retrieve"}
+          "datasource_id": {
+            "type": "integer",
+            "description": "DataSource ID to retrieve"
+          }
         },
-        "required": ["datasource_id"]
+        "required": [
+          "datasource_id"
+        ]
       }
     },
     {
@@ -46,14 +55,44 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "name": {"type": "string", "description": "Name of the data source"},
-          "type": {"type": "string", "enum": ["sql_server", "mysql", "postgresql", "opc_ua", "modbus_tcp", "rest_api", "mqtt"]},
-          "company_id": {"type": "integer", "description": "Company ID"},
-          "connection_config": {"type": "object", "description": "Connection configuration"},
-          "refresh_interval": {"type": "integer", "default": 60},
-          "is_enabled": {"type": "boolean", "default": true}
+          "name": {
+            "type": "string",
+            "description": "Name of the data source"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "sql_server",
+              "mysql",
+              "postgresql",
+              "opc_ua",
+              "modbus_tcp",
+              "rest_api",
+              "mqtt"
+            ]
+          },
+          "company_id": {
+            "type": "integer",
+            "description": "Company ID"
+          },
+          "connection_config": {
+            "type": "object",
+            "description": "Connection configuration"
+          },
+          "refresh_interval": {
+            "type": "integer",
+            "default": 60
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "default": true
+          }
         },
-        "required": ["name", "type", "company_id"]
+        "required": [
+          "name",
+          "type",
+          "company_id"
+        ]
       },
       "examples": [
         {
@@ -78,14 +117,28 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "datasource_id": {"type": "integer"},
-          "name": {"type": "string"},
-          "type": {"type": "string"},
-          "connection_config": {"type": "object"},
-          "refresh_interval": {"type": "integer"},
-          "is_enabled": {"type": "boolean"}
+          "datasource_id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "connection_config": {
+            "type": "object"
+          },
+          "refresh_interval": {
+            "type": "integer"
+          },
+          "is_enabled": {
+            "type": "boolean"
+          }
         },
-        "required": ["datasource_id"]
+        "required": [
+          "datasource_id"
+        ]
       }
     },
     {
@@ -95,9 +148,13 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "datasource_id": {"type": "integer"}
+          "datasource_id": {
+            "type": "integer"
+          }
         },
-        "required": ["datasource_id"]
+        "required": [
+          "datasource_id"
+        ]
       }
     },
     {
@@ -107,9 +164,13 @@
       "input_schema": {
         "type": "object",
         "properties": {
-          "datasource_id": {"type": "integer"}
+          "datasource_id": {
+            "type": "integer"
+          }
         },
-        "required": ["datasource_id"]
+        "required": [
+          "datasource_id"
+        ]
       }
     },
     {
@@ -122,14 +183,32 @@
       }
     }
   ],
-
   "configuration_schema": {
     "type": "object",
     "properties": {
-      "api_base_url": {"type": "string", "default": "https://app-rmmsapi.azurewebsites.net/api"},
-      "timeout": {"type": "integer", "default": 30}
+      "api_base_url": {
+        "type": "string",
+        "default": "https://app-rmmsapi.azurewebsites.net/api"
+      },
+      "timeout": {
+        "type": "integer",
+        "default": 30
+      }
     }
   },
+  "usage_patterns": [
+    "To configure a new datasource: get_datasource_types → create_datasource(type, connection_config) → test_connection(datasource_id)",
+    "To update connection: list_datasources → get_datasource(id) → update_datasource(id, new_config) → test_connection(id)"
+  ],
 
-  "tags": ["rmms", "datasource", "database", "opc", "modbus", "mqtt", "industrial", "connections"]
+  "tags": [
+    "rmms",
+    "datasource",
+    "database",
+    "opc",
+    "modbus",
+    "mqtt",
+    "industrial",
+    "connections"
+  ]
 }

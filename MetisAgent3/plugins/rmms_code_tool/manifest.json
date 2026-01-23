@@ -2,13 +2,21 @@
   "name": "rmms_code_tool",
   "display_name": "RMMS Code Editor",
   "description": "AI-powered code editor for RMMS - create and manage Python/C# codes for automation and calculations",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "author": "MetisAgent3",
   "tool_type": "plugin",
   "enabled": true,
   "plugin_type": "python_module",
   "module_path": "plugins.rmms_code_tool.rmms_code_tool",
   "class_name": "RMMSCodeTool",
+
+  "application_id": "rmms",
+  "risk_level": "high",
+  "requires_confirmation": true,
+  "category": "code",
+  "min_compatible_version": "1.0.0",
+  "deprecated": false,
+  "computer_mode": "restricted",
 
   "dependencies": [
     "httpx"
@@ -85,6 +93,10 @@
       "name": "delete_code",
       "description": "Delete a code",
       "capability_type": "write",
+      "risk_level": "high",
+      "requires_confirmation": true,
+      "is_idempotent": false,
+      "side_effects": ["deletes_code_permanently"],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -110,6 +122,10 @@
       "name": "execute_code",
       "description": "Execute a code for testing",
       "capability_type": "execute",
+      "risk_level": "critical",
+      "requires_confirmation": true,
+      "is_idempotent": false,
+      "side_effects": ["executes_code", "may_modify_data", "may_access_resources"],
       "input_schema": {
         "type": "object",
         "properties": {
@@ -154,10 +170,17 @@
   "configuration_schema": {
     "type": "object",
     "properties": {
-      "api_base_url": {"type": "string", "default": "https://app-rmmsapi.azurewebsites.net/api"},
+      "api_base_url": {"type": "string", "default": "https://rmms-metis-engine.azurewebsites.net/api"},
       "timeout": {"type": "integer", "default": 30}
     }
   },
+
+  "usage_patterns": [
+    "To edit existing code: list_codes → find code_id → get_code(code_id) → update_code(code_id, new_content)",
+    "To create from template: get_template(language) → create_code(name, language, content)",
+    "To validate before save: get_code(code_id) → validate_code(code_id) → if valid, execute_code(code_id)",
+    "To see examples: get_languages → get_examples(language) → create_code based on example"
+  ],
 
   "tags": ["rmms", "code", "python", "csharp", "editor", "automation", "industrial"]
 }

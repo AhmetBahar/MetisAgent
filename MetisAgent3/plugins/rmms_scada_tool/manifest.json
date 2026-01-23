@@ -15,6 +15,9 @@
     "json"
   ],
 
+  "application_id": "rmms",
+  "category": "scada",
+
   "capabilities": [
     {
       "name": "list_pages",
@@ -185,6 +188,13 @@
         "required": ["page_id"]
       }
     }
+  ],
+
+  "usage_patterns": [
+    "To count or query widgets: list_pages → find page_id → analyze_page(page_id)",
+    "To add a widget with tag binding: get_tags(search=keyword) → get tag ID → add_widget(page_id, widget_type, properties={tagBinding:{tagId:ID}})",
+    "To modify a widget: analyze_page(page_id) → find widget_id → update_widget(page_id, widget_id, updates)",
+    "To remove a widget: analyze_page(page_id) → find widget_id → remove_widget(page_id, widget_id)"
   ],
 
   "configuration_schema": {

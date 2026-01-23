@@ -1,0 +1,140 @@
+{
+  "name": "axis_quality_tool",
+  "display_name": "Axis Quality Control",
+  "description": "AI-powered Quality Control - inspection templates, SPC charts, defect tracking, quality metrics",
+  "version": "1.0.0",
+  "author": "MetisAgent3",
+  "tool_type": "plugin",
+  "enabled": true,
+  "plugin_type": "python_module",
+  "module_path": "plugins.axis_quality_tool.axis_quality_tool",
+  "class_name": "AxisQualityTool",
+  "dependencies": ["httpx"],
+
+  "application_id": "axis",
+  "category": "quality",
+
+  "capabilities": [
+    {
+      "name": "get_dashboard",
+      "description": "Get Quality Control dashboard with defect rates, inspection stats",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "list_templates",
+      "description": "List inspection templates",
+      "capability_type": "read",
+      "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+      "name": "get_template",
+      "description": "Get inspection template details",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {"template_id": {"type": "integer"}},
+        "required": ["template_id"]
+      }
+    },
+    {
+      "name": "create_template",
+      "description": "Create new inspection template",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "inspection_type": {"type": "string"},
+          "check_items": {"type": "array", "items": {"type": "object"}}
+        },
+        "required": ["name", "inspection_type"]
+      }
+    },
+    {
+      "name": "list_inspections",
+      "description": "List completed inspections",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "template_id": {"type": "integer"},
+          "result": {"type": "string", "enum": ["Pass", "Fail", "Conditional"]},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "create_inspection",
+      "description": "Create/submit a new inspection record",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "template_id": {"type": "integer"},
+          "product_id": {"type": "integer"},
+          "batch_number": {"type": "string"},
+          "results": {"type": "object", "description": "Check item results"}
+        },
+        "required": ["template_id"]
+      }
+    },
+    {
+      "name": "list_defects",
+      "description": "List defect records",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "defect_type": {"type": "string"},
+          "severity": {"type": "string"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        }
+      }
+    },
+    {
+      "name": "record_defect",
+      "description": "Record a new defect",
+      "capability_type": "write",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "defect_type": {"type": "string"},
+          "severity": {"type": "string", "enum": ["Minor", "Major", "Critical"]},
+          "description": {"type": "string"},
+          "product_id": {"type": "integer"},
+          "batch_number": {"type": "string"},
+          "quantity": {"type": "integer", "default": 1}
+        },
+        "required": ["defect_type", "severity"]
+      }
+    },
+    {
+      "name": "get_spc_data",
+      "description": "Get SPC (Statistical Process Control) chart data",
+      "capability_type": "read",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "parameter_id": {"type": "integer"},
+          "start_date": {"type": "string"},
+          "end_date": {"type": "string"}
+        },
+        "required": ["parameter_id"]
+      }
+    }
+  ],
+
+  "configuration_schema": {
+    "type": "object",
+    "properties": {
+      "api_base_url": {"type": "string", "default": "https://metis-api-container.azurewebsites.net/api"},
+      "timeout": {"type": "integer", "default": 30}
+    }
+  },
+
+  "tags": ["axis", "quality", "inspection", "spc", "defect", "industrial"]
+}
