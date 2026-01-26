@@ -2058,8 +2058,43 @@ Respond ONLY with valid JSON in this exact format:
                             if not name_context and step_context:
                                 name_context = step_context
 
+                            # Fuzzy matching helper: normalize string for comparison
+                            def normalize_for_match(s: str) -> str:
+                                """Remove separators and normalize for fuzzy matching"""
+                                import re
+                                # Remove common separators: space, hyphen, underscore, dot
+                                normalized = re.sub(r'[\s\-_\.]+', '', s.lower())
+                                return normalized
+
+                            def fuzzy_match(item_name: str, context: str) -> bool:
+                                """Check if item_name fuzzy-matches any word in context"""
+                                if not item_name or not context:
+                                    return False
+                                # Normalize both
+                                norm_item = normalize_for_match(item_name)
+                                norm_context = normalize_for_match(context)
+                                # Direct substring match after normalization
+                                if norm_item in norm_context or norm_context in norm_item:
+                                    return True
+                                # Token-based: check if normalized item matches any word in context
+                                # Minimum 5 chars to avoid false matches from common short words like 'for', 'the', 'and'
+                                context_words = [normalize_for_match(w) for w in context.split() if len(w) >= 5]
+                                for word in context_words:
+                                    # Word must be substantial (5+ chars) to be used for matching
+                                    if word and norm_item and len(word) >= 5 and (word in norm_item or norm_item in word):
+                                        return True
+                                    # Also check edit distance for very close matches (1-2 chars diff)
+                                    if word and norm_item and len(word) >= 5 and len(norm_item) >= 5:
+                                        if abs(len(word) - len(norm_item)) <= 2:
+                                            # Simple similarity: count matching chars
+                                            matches = sum(1 for a, b in zip(word, norm_item) if a == b)
+                                            if matches >= min(len(word), len(norm_item)) * 0.7:
+                                                return True
+                                return False
+
                             for result_key, result_val in result.items():
                                 if isinstance(result_val, list) and result_val:
+                                    logger.debug(f"🔍 Resolver: key={result_key}, items={len(result_val)}, name_context='{name_context}'")
                                     # Single item: use it directly
                                     if len(result_val) == 1 and isinstance(result_val[0], dict):
                                         for alias in aliases:
@@ -2067,15 +2102,15 @@ Respond ONLY with valid JSON in this exact format:
                                                 logger.info(f"🔗 Resolved {value} -> {result_val[0][alias]} (single list item)")
                                                 return result_val[0][alias]
 
-                                    # Multiple items: try name-based filtering
+                                    # Multiple items: try fuzzy name-based filtering
                                     if name_context and len(result_val) > 1:
                                         for item in result_val:
                                             if isinstance(item, dict):
-                                                item_name = (item.get('pageName') or item.get('name') or item.get('title') or '').lower()
-                                                if item_name and (item_name in name_context or name_context in item_name):
+                                                item_name = item.get('pageName') or item.get('name') or item.get('title') or ''
+                                                if fuzzy_match(item_name, name_context):
                                                     for alias in aliases:
                                                         if alias in item:
-                                                            logger.info(f"🔗 Resolved {value} -> {item[alias]} (name match: {item_name})")
+                                                            logger.info(f"🔗 Resolved {value} -> {item[alias]} (fuzzy match: {item_name})")
                                                             return item[alias]
 
                                     # Fallback: use first item with matching alias

@@ -276,8 +276,11 @@ class RMMSScadaTool(BaseTool):
 
     async def _list_pages(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """List all SCADA pages, optionally filtered by company and/or name"""
-        company_id = params.get("company_id", self.default_company_id)
+        # Always use default company_id unless user explicitly mentions a company
+        # LLM tends to guess company_id=1 which is often wrong
+        company_id = self.default_company_id
         page_name_filter = params.get("page_name", "").strip().lower()
+        logger.debug(f"📄 list_pages called with params: {params}, using company_id={company_id}, filter='{page_name_filter}'")
         headers = await self._get_auth_headers(company_id)
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
@@ -290,7 +293,9 @@ class RMMSScadaTool(BaseTool):
 
                 # Client-side name filtering
                 if page_name_filter:
+                    original_count = len(pages)
                     pages = [p for p in pages if page_name_filter in (p.get("pageName") or p.get("name") or "").lower()]
+                    logger.debug(f"📄 Filtered from {original_count} to {len(pages)} pages (filter='{page_name_filter}')")
 
                 return {
                     "success": True,
